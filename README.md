@@ -8,4 +8,6 @@
 
 方便去现场实时抓图后快速测试<br>
 
+适配yolov3, 其他的不确定是否可用<br>
+
 ![image](https://github.com/Amaury-GitHub/VisionInspection/blob/master/IMG/img1.png)<br>
