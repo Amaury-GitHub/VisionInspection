@@ -10,4 +10,13 @@
 
 适配yolov3, 其他的不确定是否可用<br>
 
+测试的配置,权重,类别文件来自<br>
+[https://github.com/pjreddie/darknet](https://github.com/pjreddie/darknet)<br>
+[https://pjreddie.com/darknet](https://pjreddie.com/darknet/)<br>
+[https://pjreddie.com/media/files/yolov3.weights](https://pjreddie.com/media/files/yolov3.weights)
+
+测试图片网上随便搜的<br>
+
+
+
 ![image](https://github.com/Amaury-GitHub/VisionInspection/blob/master/IMG/img1.png)<br>
