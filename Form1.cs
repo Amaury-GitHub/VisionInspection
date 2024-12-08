@@ -118,7 +118,7 @@ namespace YOLODetectionApp
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "图像文件|*.jpg;*.jpeg;*.png;*.bmp;*.webp";
+                openFileDialog.Filter = "图像文件|*.jpg;*.jpeg;*.png;*.bmp|所有文件|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     inputImage = Cv2.ImRead(openFileDialog.FileName);
