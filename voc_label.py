@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import random
 import xml.etree.ElementTree as ET
@@ -62,6 +63,7 @@ splits = {
 for split, dataset in splits.items():
     with open(os.path.join(IMAGESETS_DIR, f"{split}.txt"), "w") as f:
         f.writelines(f"{name}\n" for name in dataset)
+    print(f"{os.path.join(IMAGESETS_DIR, f'{split}.txt')} 文件已生成")
 
 def gen_classes(image_id, classes):
     """
@@ -159,8 +161,8 @@ for image_set in sets:
             
             # 执行标签转换
             convert_annotation(image_id)
-    print(f"{os.path.join(TRAIN_DIR, f'{image_set}.txt')} 文件已创建")
-print(f"{LABELS_DIR} 标签已转换创建")
+    print(f"{os.path.join(TRAIN_DIR, f'{image_set}.txt')} 文件已生成")
+print(f"{LABELS_DIR} 标签已生成")
 
 # 输出 classes 列表的总数
 print(f"classes = {len(classes)}")
@@ -172,12 +174,12 @@ with open(os.path.join(TRAIN_DIR, 'train.names'), 'w') as f:
     for class_name in classes:
         f.write(f"{class_name}\n")
 
-print(f"{os.path.join(TRAIN_DIR, 'train.names')} 文件已创建")
+print(f"{os.path.join(TRAIN_DIR, 'train.names')} 文件已生成")
 
 # 复制类别文件到 WEIGHTS_DIR 下
 shutil.copy(os.path.join(TRAIN_DIR, 'train.names'), os.path.join(WEIGHTS_DIR, 'test.names'))
 
-print(f"{os.path.join(WEIGHTS_DIR, 'test.names')} 文件已创建")
+print(f"{os.path.join(WEIGHTS_DIR, 'test.names')} 文件已生成")
 
 # 获取 TRAIN_DIR 目录的绝对路径
 train_dir = Path(TRAIN_DIR).resolve()
@@ -198,7 +200,7 @@ names = {names_txt_path.resolve()}
 backup = {weights_dir.resolve()}
 """)
 
-print(f"{os.path.join(TRAIN_DIR, 'train.data')} 文件已创建")
+print(f"{os.path.join(TRAIN_DIR, 'train.data')} 文件已生成")
 
 # 获取 filters 和 classes 的值
 filters = 3 * (5 + len(classes))  # 根据前面的代码计算 filters
@@ -249,7 +251,7 @@ if yolo_line_numbers:
     # 将更新后的内容写到 test_cfg_path
     with open(os.path.join(WEIGHTS_DIR, 'test.cfg'), 'w') as cfg_file:
         cfg_file.writelines(lines)
-    print(f"{os.path.join(WEIGHTS_DIR, 'test.cfg')} 文件已创建")
+    print(f"{os.path.join(WEIGHTS_DIR, 'test.cfg')} 文件已生成")
 else:
     print("未找到 yolo 相关的行")
 
@@ -274,6 +276,5 @@ for i, line in enumerate(lines):
     with open(os.path.join(TRAIN_DIR, 'train.cfg'), 'w') as cfg_file:
         cfg_file.writelines(lines)
 
-print(f"{os.path.join(TRAIN_DIR, 'train.cfg')} 文件已创建")
-
+print(f"{os.path.join(TRAIN_DIR, 'train.cfg')} 文件已生成")
 
