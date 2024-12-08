@@ -27,6 +27,7 @@ WEIGHTS_DIR = os.path.join(TRAIN_DIR, "Weights")  # 权重文件夹路径
 os.makedirs(ANNOTATIONS_DIR, exist_ok=True)
 os.makedirs(IMAGESETS_DIR, exist_ok=True)
 os.makedirs(LABELS_DIR, exist_ok=True)
+os.makedirs(IMAGES_DIR, exist_ok=True)
 os.makedirs(TRAIN_DIR, exist_ok=True)
 os.makedirs(WEIGHTS_DIR, exist_ok=True)
 
@@ -40,7 +41,7 @@ train_count = int(num * TRAIN_PERCENT)  # 从总数据集中选择90%作为train
 # 随机选择数据
 random.seed(42)  # 保证结果可重复
 train = set(random.sample(total_xml, train_count))  # train集合 (占总数据的90%)
-trainval = set(total_xml) - train  # 将剩余数据直接分配给 trainval
+trainval = set(total_xml) - train  # 剩余数据分配给 trainval
 
 # 输出调试信息
 train_percent = len(train) / num * 100
@@ -64,7 +65,7 @@ for split, dataset in splits.items():
 
 def gen_classes(image_id, classes):
     """
-    解析指定图像的XML文件，提取类别信息并更新类列表。
+    解析指定图像的XML文件，提取类别信息并更新类列表
     """
     in_file = open(os.path.join(ANNOTATIONS_DIR, f'{image_id}.xml'))
     tree = ET.parse(in_file)
@@ -81,7 +82,7 @@ def gen_classes(image_id, classes):
 
 def convert(size, box):
     """
-    将边界框的坐标转换为相对比例的形式，适应YOLO格式。
+    将边界框的坐标转换为相对比例的形式，适应YOLO格式
     """
     dw = 1. / (size[0])  # 图像宽度的归一化因子
     dh = 1. / (size[1])  # 图像高度的归一化因子
@@ -98,7 +99,7 @@ def convert(size, box):
 
 def convert_annotation(image_id):
     """
-    处理每个图像的 XML 文件，将其转换为 YOLO 格式的标签文件。
+    处理每个图像的 XML 文件，将其转换为 YOLO 格式的标签文件
     """
     # 打开 XML 文件进行解析
     in_file = open(os.path.join(ANNOTATIONS_DIR, f'{image_id}.xml'))
@@ -158,6 +159,8 @@ for image_set in sets:
             
             # 执行标签转换
             convert_annotation(image_id)
+    print(f"{os.path.join(TRAIN_DIR, f'{image_set}.txt')} 文件已创建")
+print(f"{LABELS_DIR} 标签已转换创建")
 
 # 输出 classes 列表的总数
 print(f"classes = {len(classes)}")
@@ -169,7 +172,12 @@ with open(os.path.join(TRAIN_DIR, 'train.names'), 'w') as f:
     for class_name in classes:
         f.write(f"{class_name}\n")
 
+print(f"{os.path.join(TRAIN_DIR, 'train.names')} 文件已创建")
 
+# 复制类别文件到 WEIGHTS_DIR 下
+shutil.copy(os.path.join(TRAIN_DIR, 'train.names'), os.path.join(WEIGHTS_DIR, 'test.names'))
+
+print(f"{os.path.join(WEIGHTS_DIR, 'test.names')} 文件已创建")
 
 # 获取 TRAIN_DIR 目录的绝对路径
 train_dir = Path(TRAIN_DIR).resolve()
@@ -190,37 +198,17 @@ names = {names_txt_path.resolve()}
 backup = {weights_dir.resolve()}
 """)
 
+print(f"{os.path.join(TRAIN_DIR, 'train.data')} 文件已创建")
+
 # 获取 filters 和 classes 的值
 filters = 3 * (5 + len(classes))  # 根据前面的代码计算 filters
 classes = len(classes)  # 计算 classes 的值
 
-# train.cfg 文件路径
-cfg_file_path = os.path.join(TRAIN_DIR, 'train.cfg')
-
-shutil.copy(yolov3_voc_cfg, cfg_file_path)
-
-# 读取 train.cfg 文件内容
-with open(cfg_file_path, 'r') as cfg_file:
+# 读取 yolov3_voc_cfg 的文件内容
+with open(yolov3_voc_cfg, 'r') as cfg_file:
     lines = cfg_file.readlines()
-    
-# 查找 # Testing 和 # Training
-for i, line in enumerate(lines):
-    if '# Testing' in line:
-        # 如果后面的 batch 和 subdivisions 没有被注释，则注释掉
-        if i + 1 < len(lines) and not lines[i + 1].strip().startswith("#"):
-            lines[i + 1] = f"# {lines[i + 1].strip()}\n"  # 注释掉 batch=1
-        if i + 2 < len(lines) and not lines[i + 2].strip().startswith("#"):
-            lines[i + 2] = f"# {lines[i + 2].strip()}\n"  # 注释掉 subdivisions=1
-        print(f"已注释 # Testing 相关代码")
-    
-    elif '# Training' in line:
-        # 如果后面的 batch 和 subdivisions 是注释状态，则去掉注释
-        if i + 1 < len(lines) and lines[i + 1].strip().startswith("#"):
-            lines[i + 1] = lines[i + 1].lstrip('#').lstrip()  # 去掉 batch=64 注释
-        if i + 2 < len(lines) and lines[i + 2].strip().startswith("#"):
-            lines[i + 2] = lines[i + 2].lstrip('#').lstrip()  # 去掉 subdivisions=16 注释
-        print(f"已启用 # Training 相关代码")
-        
+print(f"{yolov3_voc_cfg} 文件已读取")
+
 # 查找所有 yolo 关键字的行号
 yolo_line_numbers = []
 for i, line in enumerate(lines):
@@ -229,7 +217,7 @@ for i, line in enumerate(lines):
 
 # 如果找到了 yolo
 if yolo_line_numbers:
-
+    print("开始修改 yolo 关键字上下文的 filters 和 classes")
     # 对于每个 yolo 行，更新对应的 filters 和 classes
     for yolo_line_number in yolo_line_numbers:
 
@@ -256,13 +244,36 @@ if yolo_line_numbers:
             print(f"第 {yolo_line_number + 1} 行的 filters 已更新为 {filters}")
             print(f"第 {classes_line_number + 1} 行的 classes 已更新为 {classes}")
         else:
-            print(f"第 {yolo_line_number + 1} 行的 filters 或 classes 未找到。")
+            print(f"第 {yolo_line_number + 1} 行的 filters 或 classes 未找到")
 
-    # 将更新后的内容写回文件
-    with open(cfg_file_path, 'w') as cfg_file:
+    # 将更新后的内容写到 test_cfg_path
+    with open(os.path.join(WEIGHTS_DIR, 'test.cfg'), 'w') as cfg_file:
+        cfg_file.writelines(lines)
+    print(f"{os.path.join(WEIGHTS_DIR, 'test.cfg')} 文件已创建")
+else:
+    print("未找到 yolo 相关的行")
+
+# 查找 # Testing 和 # Training
+for i, line in enumerate(lines):
+    if '# Testing' in line:
+        # 如果后面的 batch 和 subdivisions 没有被注释，则注释掉
+        if i + 1 < len(lines) and not lines[i + 1].strip().startswith("#"):
+            lines[i + 1] = f"# {lines[i + 1].strip()}\n"  # 注释掉 batch=1
+        if i + 2 < len(lines) and not lines[i + 2].strip().startswith("#"):
+            lines[i + 2] = f"# {lines[i + 2].strip()}\n"  # 注释掉 subdivisions=1
+        print(f"已注释 # Testing 相关代码")
+    elif '# Training' in line:
+        # 如果后面的 batch 和 subdivisions 是注释状态，则去掉注释
+        if i + 1 < len(lines) and lines[i + 1].strip().startswith("#"):
+            lines[i + 1] = lines[i + 1].lstrip('#').lstrip()  # 去掉 batch=64 注释
+        if i + 2 < len(lines) and lines[i + 2].strip().startswith("#"):
+            lines[i + 2] = lines[i + 2].lstrip('#').lstrip()  # 去掉 subdivisions=16 注释
+        print(f"已启用 # Training 相关代码")
+
+    # 将更新后的内容写到 train_cfg_path
+    with open(os.path.join(TRAIN_DIR, 'train.cfg'), 'w') as cfg_file:
         cfg_file.writelines(lines)
 
-    print(f"train.cfg 文件已更新")
-else:
-    print("未找到 yolo 相关的行。")
+print(f"{os.path.join(TRAIN_DIR, 'train.cfg')} 文件已创建")
+
 
