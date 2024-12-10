@@ -42,9 +42,13 @@
             this.txtConfigPath = new System.Windows.Forms.TextBox();
             this.txtWeightsPath = new System.Windows.Forms.TextBox();
             this.txtClassNamesPath = new System.Windows.Forms.TextBox();
+            this.numericUpDownFontSize = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtDetectionResults = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxInput)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConfidence)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBoxInput
@@ -85,7 +89,7 @@
             // 
             // numericUpDownConfidence
             // 
-            this.numericUpDownConfidence.Location = new System.Drawing.Point(1198, 149);
+            this.numericUpDownConfidence.Location = new System.Drawing.Point(1042, 26);
             this.numericUpDownConfidence.Name = "numericUpDownConfidence";
             this.numericUpDownConfidence.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownConfidence.TabIndex = 4;
@@ -100,7 +104,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1232, 124);
+            this.label1.Location = new System.Drawing.Point(984, 31);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(52, 15);
             this.label1.TabIndex = 5;
@@ -157,11 +161,40 @@
             this.txtClassNamesPath.Size = new System.Drawing.Size(482, 25);
             this.txtClassNamesPath.TabIndex = 11;
             // 
+            // numericUpDownFontSize
+            // 
+            this.numericUpDownFontSize.Location = new System.Drawing.Point(1042, 83);
+            this.numericUpDownFontSize.Name = "numericUpDownFontSize";
+            this.numericUpDownFontSize.Size = new System.Drawing.Size(120, 25);
+            this.numericUpDownFontSize.TabIndex = 12;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(969, 88);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(67, 15);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "文字大小";
+            // 
+            // txtDetectionResults
+            // 
+            this.txtDetectionResults.Location = new System.Drawing.Point(1318, 26);
+            this.txtDetectionResults.Multiline = true;
+            this.txtDetectionResults.Name = "txtDetectionResults";
+            this.txtDetectionResults.ReadOnly = true;
+            this.txtDetectionResults.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtDetectionResults.Size = new System.Drawing.Size(374, 138);
+            this.txtDetectionResults.TabIndex = 14;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2095, 869);
+            this.Controls.Add(this.txtDetectionResults);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.numericUpDownFontSize);
             this.Controls.Add(this.txtClassNamesPath);
             this.Controls.Add(this.txtWeightsPath);
             this.Controls.Add(this.txtConfigPath);
@@ -179,6 +212,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxInput)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConfidence)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -199,6 +233,9 @@
         private System.Windows.Forms.TextBox txtConfigPath;
         private System.Windows.Forms.TextBox txtWeightsPath;
         private System.Windows.Forms.TextBox txtClassNamesPath;
+        private System.Windows.Forms.NumericUpDown numericUpDownFontSize;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtDetectionResults;
     }
 }
 

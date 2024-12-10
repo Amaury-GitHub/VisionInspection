@@ -24,19 +24,22 @@ namespace YOLODetectionApp
         // 置信度阈值，默认设置为0.5
         private float confidenceThreshold = 0.5f;
 
+        private double fontSize = 1.0;
+        private readonly Dictionary<int, Scalar> labelColors = new Dictionary<int, Scalar>(); // 存储类别对应的颜色
+        private readonly Random rand = new Random();
+        private string resultImagePath;
+
         public MainForm()
         {
             InitializeComponent();
             InitializeControls();
-                // 设置路径文本框为只读
-    txtConfigPath.ReadOnly = true;
-    txtWeightsPath.ReadOnly = true;
-    txtClassNamesPath.ReadOnly = true;
+            TryLoadDefaultFiles();
         }
 
         // 初始化控件设置
         private void InitializeControls()
         {
+            // 设置置信度阈值控件
             numericUpDownConfidence.Value = (decimal)confidenceThreshold;
             numericUpDownConfidence.Minimum = 0;
             numericUpDownConfidence.Maximum = 1;
@@ -47,6 +50,49 @@ namespace YOLODetectionApp
                 // 更新置信度阈值
                 confidenceThreshold = (float)numericUpDownConfidence.Value;
             };
+
+            // 设置字体大小控件
+            numericUpDownFontSize.Value = (decimal)fontSize;
+            numericUpDownFontSize.Minimum = 0.1M;
+            numericUpDownFontSize.Maximum = 9.0M;
+            numericUpDownFontSize.DecimalPlaces = 1;
+            numericUpDownFontSize.Increment = 0.1M;
+            numericUpDownFontSize.ValueChanged += (sender, e) =>
+            {
+                fontSize = (double)numericUpDownFontSize.Value;
+            };
+
+            // 设置路径文本框为只读
+            txtConfigPath.ReadOnly = true;
+            txtWeightsPath.ReadOnly = true;
+            txtClassNamesPath.ReadOnly = true;
+        }
+
+        private void TryLoadDefaultFiles()
+        {
+            string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            // 查找目录中的文件
+            var configFiles = Directory.GetFiles(exeDir, "*.cfg");
+            var weightFiles = Directory.GetFiles(exeDir, "*.weights");
+            var namesFiles = Directory.GetFiles(exeDir, "*.names");
+
+            // 自动加载找到的文件（如存在）
+            if (configFiles.Length > 0)
+                modelConfig = configFiles[0];
+            if (weightFiles.Length > 0)
+                modelWeights = weightFiles[0];
+            if (namesFiles.Length > 0)
+                classNamesFile = namesFiles[0];
+
+            // 更新UI
+            txtConfigPath.Text = modelConfig;
+            txtWeightsPath.Text = modelWeights;
+            txtClassNamesPath.Text = classNamesFile;
+
+            // 加载模型
+            if (!string.IsNullOrEmpty(modelConfig) && !string.IsNullOrEmpty(modelWeights) && !string.IsNullOrEmpty(classNamesFile))
+                LoadYOLOModel();
         }
 
         // 加载YOLO模型
@@ -157,6 +203,21 @@ namespace YOLODetectionApp
 
             // 进行物体检测
             var detectedImage = DetectObjects(inputImage);
+            // 获取应用程序的目录路径
+            string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // 设置保存路径为 "predictions.jpg"
+            resultImagePath = Path.Combine(exeDirectory, "predictions.jpg");
+
+            // 将推理结果图像保存到 exe 目录下
+            try
+            {
+                Cv2.ImWrite(resultImagePath, detectedImage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存图像时发生错误: {ex.Message}");
+            }
 
             // 获取图片和PictureBox的大小
             int pictureBoxWidth = pictureBoxOutput.Width;
@@ -167,7 +228,13 @@ namespace YOLODetectionApp
 
             // 将调整后的图像显示在PictureBox中
             pictureBoxOutput.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
+
+            // 计算分隔线的长度（基于文本框的宽度）
+            string separatorLine = new string('-', txtDetectionResults.ClientSize.Width / 10);
+            // 在TextBox中添加分隔线
+            txtDetectionResults.AppendText(separatorLine + Environment.NewLine);
         }
+
         // 图像缩放方法
         private Mat ResizeImage(Mat image, int maxWidth, int maxHeight)
         {
@@ -196,7 +263,7 @@ namespace YOLODetectionApp
             string previousConfigPath = modelConfig;
 
             // 选择文件
-            modelConfig = LoadFile("配置文件|*.cfg");
+            modelConfig = LoadFile("配置文件|*.cfg|所有文件|*.*");
 
             // 如果文件选择不是取消（路径不为空），才更新文本框和变量
             if (!string.IsNullOrEmpty(modelConfig))
@@ -217,7 +284,7 @@ namespace YOLODetectionApp
             string previousWeightsPath = modelWeights;
 
             // 选择文件
-            modelWeights = LoadFile("权重文件|*.weights");
+            modelWeights = LoadFile("权重文件|*.weights|所有文件|*.*");
 
             // 如果文件选择不是取消（路径不为空），才更新文本框和变量
             if (!string.IsNullOrEmpty(modelWeights))
@@ -238,7 +305,7 @@ namespace YOLODetectionApp
             string previousClassNamesPath = classNamesFile;
 
             // 选择文件
-            classNamesFile = LoadFile("类别文件|*.names");
+            classNamesFile = LoadFile("类别文件|*.names|所有文件|*.*");
 
             // 如果文件选择不是取消（路径不为空），才更新文本框和变量
             if (!string.IsNullOrEmpty(classNamesFile))
@@ -323,17 +390,57 @@ namespace YOLODetectionApp
                 out int[] indices
             );
 
-            // 绘制检测框
             var outputImage = image.Clone();
             foreach (var idx in indices)
             {
                 var box = boxes[idx];
-                string label = $"{classNames[classIds[idx]]}: {confidences[idx]:0.00}";
-                Cv2.Rectangle(outputImage, box, new Scalar(0, 255, 0), 2);
-                Cv2.PutText(outputImage, label, new Point(box.X, box.Y - 10), HersheyFonts.HersheySimplex, 0.5, new Scalar(0, 255, 0));
+                int classId = classIds[idx];
+                string label = $"{classNames[classId]}: {confidences[idx]:0.00}";
+                string resultText = $"Label: {classNames[classId]}, Confidence: {confidences[idx]:0.00}";
+
+                txtDetectionResults.AppendText(resultText + Environment.NewLine);
+
+                // 获取颜色
+                if (!labelColors.ContainsKey(classId))
+                {
+                    labelColors[classId] = GenerateRandomColor();
+                }
+                Scalar color = labelColors[classId];
+
+                // 绘制带背景的文字
+                var labelSize = Cv2.GetTextSize(label, HersheyFonts.HersheyDuplex, fontSize, 1, out int baseline);
+
+                // 计算文字位置
+                Point labelOrigin;
+                if (box.Y - labelSize.Height - 5 < 0)
+                {
+                    // 如果顶部超出，将文字显示在标注框下方
+                    labelOrigin = new Point(box.X, box.Y + box.Height + 5);
+                }
+                else
+                {
+                    // 默认显示在标注框上方
+                    labelOrigin = new Point(box.X, box.Y - labelSize.Height - 5);
+                }
+
+                // 确保文字背景不会超出图像边界
+                int backgroundHeight = labelSize.Height + 5;
+                int backgroundWidth = Math.Min(labelSize.Width, image.Width - labelOrigin.X);
+
+                Cv2.Rectangle(outputImage, new Rect(labelOrigin, new Size(backgroundWidth, backgroundHeight)), color, Cv2.FILLED);
+                Cv2.PutText(outputImage, label, new Point(labelOrigin.X, labelOrigin.Y + labelSize.Height), HersheyFonts.HersheyDuplex, fontSize, new Scalar(0, 0, 0), 1);
+
+                // 绘制检测框
+                Cv2.Rectangle(outputImage, box, color, 2);
             }
 
             return outputImage;
+        }
+
+        // 随机生成颜色
+        private Scalar GenerateRandomColor()
+        {
+            return new Scalar(rand.Next(0, 255), rand.Next(0, 255), rand.Next(0, 255));
         }
     }
 }
