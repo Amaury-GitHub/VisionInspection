@@ -15,8 +15,6 @@
 [https://pjreddie.com/darknet](https://pjreddie.com/darknet/)<br>
 [https://pjreddie.com/media/files/yolov3.weights](https://pjreddie.com/media/files/yolov3.weights)
 
-测试图片网上随便搜的<br>
 
-
-
+update: 增加了配置,权重,类别文件的自动加载, 增加了置信度,nms抑制的参数设置, 增加了标准文字大小的设置, 增加了日志框显示, 增加了文件夹批量检查<br><br>
 ![image](https://github.com/Amaury-GitHub/VisionInspection/blob/master/IMG/img1.png)<br>
