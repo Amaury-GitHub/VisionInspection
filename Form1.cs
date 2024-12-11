@@ -15,10 +15,11 @@ namespace YOLODetectionApp
         private string modelConfig;
         private string modelWeights;
         private string classNamesFile;
+        private string FolderPath;
+        private string resultFolderPath;
 
-        private string imagePath;
+        private static string imagePath;
 
-        private string resultImagePath;
 
         private string[] classNames;
 
@@ -94,6 +95,7 @@ namespace YOLODetectionApp
             txtConfigPath.ReadOnly = true;
             txtWeightsPath.ReadOnly = true;
             txtClassNamesPath.ReadOnly = true;
+            txtFolderPath.ReadOnly = true;
         }
 
         private void TryLoadDefaultFiles()
@@ -261,23 +263,16 @@ namespace YOLODetectionApp
                 return;
             }
 
-            txtDetectionResults.AppendText(imagePath + Environment.NewLine);
-
             // 加载模型（如果还未加载）
             LoadYOLOModel();
 
             // 进行物体检测
             var detectedImage = DetectObjects(inputImage);
-            // 获取应用程序的目录路径
-            string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            // 设置保存路径为 "predictions.jpg"
-            resultImagePath = Path.Combine(exeDirectory, "predictions.jpg");
 
             // 将推理结果图像保存到 exe 目录下
             try
             {
-                Cv2.ImWrite(resultImagePath, detectedImage);
+                Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
             }
             catch (Exception ex)
             {
@@ -380,6 +375,94 @@ namespace YOLODetectionApp
             }
         }
 
+        // 选择文件夹按钮事件
+        private void BtnSelectFolder_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderDialog = new FolderBrowserDialog())
+            {
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    FolderPath = folderDialog.SelectedPath;
+                    txtFolderPath.Text = FolderPath; // 显示选择的文件夹路径
+                }
+            }
+        }
+        // 批量检测按钮事件
+        private void BtnBatchDetect_Click(object sender, EventArgs e)
+        {
+            // 清空txtDetectionResults内容
+            txtDetectionResults.Clear();
+
+            if (string.IsNullOrEmpty(FolderPath))
+            {
+                MessageBox.Show("请选择一个文件夹！");
+                return;
+            }
+
+            // 获取当前时间作为文件夹名
+            string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            resultFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, timeStamp);
+
+            // 创建一个以当前时间命名的文件夹
+            Directory.CreateDirectory(resultFolderPath);
+
+            // 获取文件夹中的所有图像文件
+            var imageFiles = Directory.GetFiles(FolderPath, "*.jpg")
+                .Concat(Directory.GetFiles(FolderPath, "*.jpeg"))
+                .Concat(Directory.GetFiles(FolderPath, "*.png"))
+                .Concat(Directory.GetFiles(FolderPath, "*.bmp"))
+                .ToArray();
+
+            if (imageFiles.Length == 0)
+            {
+                MessageBox.Show("该文件夹中没有支持的图像文件！");
+                return;
+            }
+
+            // 开始批量检测
+            foreach (var imagePath in imageFiles)
+            {
+                ProcessImage(imagePath);
+            }
+            // 生成检测结果文本
+            string resultTxtPath = Path.Combine(resultFolderPath, "result.txt");
+            using (StreamWriter writer = new StreamWriter(resultTxtPath))
+            {
+                writer.WriteLine(txtDetectionResults.Text); // 将TextBox中的结果写入文件
+            }
+            MessageBox.Show("批量检测完成！");
+        }
+
+        // 处理每张图片并保存结果
+        private void ProcessImage(string imagePath)
+        {
+            // 读取图片
+            Mat inputImage = Cv2.ImRead(imagePath);
+            MainForm.imagePath = imagePath;
+            if (inputImage.Empty())
+            {
+                MessageBox.Show($"无法读取图片：{imagePath}");
+                return;
+            }
+
+            // 使用YOLO模型进行检测
+            var detectedImage = DetectObjects(inputImage);
+
+            // 获取原始文件名
+            string fileName = Path.GetFileName(imagePath);
+
+            // 保存推理后的图像
+            string resultImagePath = Path.Combine(resultFolderPath, fileName);
+            try
+            {
+                Cv2.ImWrite(resultImagePath, detectedImage);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存图像时发生错误: {ex.Message}");
+                return;
+            }
+        }
         // 文件加载通用方法
         private string LoadFile(string filter)
         {
@@ -397,6 +480,8 @@ namespace YOLODetectionApp
         // 检测物体
         private Mat DetectObjects(Mat image)
         {
+            txtDetectionResults.AppendText(imagePath + Environment.NewLine);
+
             int width = image.Width;
             int height = image.Height;
 

@@ -47,6 +47,9 @@
             this.txtDetectionResults = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.numericUpDownNMS = new System.Windows.Forms.NumericUpDown();
+            this.BtnSelectFolder = new System.Windows.Forms.Button();
+            this.BtnBatchDetect = new System.Windows.Forms.Button();
+            this.txtFolderPath = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxInput)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConfidence)).BeginInit();
@@ -147,21 +150,21 @@
             // 
             this.txtConfigPath.Location = new System.Drawing.Point(168, 26);
             this.txtConfigPath.Name = "txtConfigPath";
-            this.txtConfigPath.Size = new System.Drawing.Size(482, 25);
+            this.txtConfigPath.Size = new System.Drawing.Size(333, 25);
             this.txtConfigPath.TabIndex = 9;
             // 
             // txtWeightsPath
             // 
             this.txtWeightsPath.Location = new System.Drawing.Point(168, 83);
             this.txtWeightsPath.Name = "txtWeightsPath";
-            this.txtWeightsPath.Size = new System.Drawing.Size(482, 25);
+            this.txtWeightsPath.Size = new System.Drawing.Size(333, 25);
             this.txtWeightsPath.TabIndex = 10;
             // 
             // txtClassNamesPath
             // 
             this.txtClassNamesPath.Location = new System.Drawing.Point(168, 139);
             this.txtClassNamesPath.Name = "txtClassNamesPath";
-            this.txtClassNamesPath.Size = new System.Drawing.Size(482, 25);
+            this.txtClassNamesPath.Size = new System.Drawing.Size(333, 25);
             this.txtClassNamesPath.TabIndex = 11;
             // 
             // numericUpDownFontSize
@@ -207,11 +210,41 @@
             this.numericUpDownNMS.TabIndex = 15;
             this.numericUpDownNMS.Tag = "";
             // 
+            // BtnSelectFolder
+            // 
+            this.BtnSelectFolder.Location = new System.Drawing.Point(535, 11);
+            this.BtnSelectFolder.Name = "BtnSelectFolder";
+            this.BtnSelectFolder.Size = new System.Drawing.Size(150, 50);
+            this.BtnSelectFolder.TabIndex = 17;
+            this.BtnSelectFolder.Text = "选择文件夹";
+            this.BtnSelectFolder.UseVisualStyleBackColor = true;
+            this.BtnSelectFolder.Click += new System.EventHandler(this.BtnSelectFolder_Click);
+            // 
+            // BtnBatchDetect
+            // 
+            this.BtnBatchDetect.Location = new System.Drawing.Point(729, 10);
+            this.BtnBatchDetect.Name = "BtnBatchDetect";
+            this.BtnBatchDetect.Size = new System.Drawing.Size(150, 50);
+            this.BtnBatchDetect.TabIndex = 18;
+            this.BtnBatchDetect.Text = "批量检测";
+            this.BtnBatchDetect.UseVisualStyleBackColor = true;
+            this.BtnBatchDetect.Click += new System.EventHandler(this.BtnBatchDetect_Click);
+            // 
+            // txtFolderPath
+            // 
+            this.txtFolderPath.Location = new System.Drawing.Point(535, 83);
+            this.txtFolderPath.Name = "txtFolderPath";
+            this.txtFolderPath.Size = new System.Drawing.Size(344, 25);
+            this.txtFolderPath.TabIndex = 19;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2095, 869);
+            this.Controls.Add(this.txtFolderPath);
+            this.Controls.Add(this.BtnBatchDetect);
+            this.Controls.Add(this.BtnSelectFolder);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.numericUpDownNMS);
             this.Controls.Add(this.txtDetectionResults);
@@ -261,6 +294,9 @@
         private System.Windows.Forms.TextBox txtDetectionResults;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numericUpDownNMS;
+        private System.Windows.Forms.Button BtnSelectFolder;
+        private System.Windows.Forms.Button BtnBatchDetect;
+        private System.Windows.Forms.TextBox txtFolderPath;
     }
 }
 
