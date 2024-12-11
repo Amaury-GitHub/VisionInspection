@@ -182,12 +182,12 @@
             // 
             // txtDetectionResults
             // 
-            this.txtDetectionResults.Location = new System.Drawing.Point(1318, 11);
+            this.txtDetectionResults.Location = new System.Drawing.Point(1198, 10);
             this.txtDetectionResults.Multiline = true;
             this.txtDetectionResults.Name = "txtDetectionResults";
             this.txtDetectionResults.ReadOnly = true;
             this.txtDetectionResults.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDetectionResults.Size = new System.Drawing.Size(500, 163);
+            this.txtDetectionResults.Size = new System.Drawing.Size(868, 163);
             this.txtDetectionResults.TabIndex = 14;
             // 
             // label3

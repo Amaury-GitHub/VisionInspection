@@ -27,20 +27,21 @@ namespace YOLODetectionApp
 
         private bool modelLoaded = false; // 用于判断模型是否已经加载
 
-        // 置信度阈值，默认设置为0.5
+        // 置信度阈值
         private float confidenceThreshold = 0.8f;
 
-        // NMS阈值，默认设置为0.1
-        private float nmsThreshold = 0.1f;
+        // NMS阈值
+        private float nmsThreshold = 0.0f;
 
-        // 字体大小，默认设置为2
-        private double fontSize = 2.0;
+        // 字体大小
+        private double fontSize = 1.0;
 
         // 存储每个类别的颜色和对比色
         private readonly Dictionary<int, (Scalar labelColor, Scalar textColor)> ColorMap = new Dictionary<int, (Scalar, Scalar)>();
 
         // 类别数，可以根据实际情况调整
         private readonly int numClasses = 80;
+
         // 定义一个全局的随机数生成器
         private readonly Random rand = new Random();
         public MainForm()
@@ -492,8 +493,8 @@ namespace YOLODetectionApp
                     int backgroundWidth = Math.Min(labelSize.Width + 10, image.Width - labelOrigin.X);
 
                     // 背景框位置调整
-                    backgroundOrigin.X = backgroundOrigin.X - 6;
-                    backgroundOrigin.Y = backgroundOrigin.Y - 5;
+                    backgroundOrigin.X -= 6;
+                    backgroundOrigin.Y -= 5;
 
                     Cv2.Rectangle(outputImage, new Rect(backgroundOrigin, new Size(backgroundWidth, backgroundHeight)), labelColor, Cv2.FILLED);
 
@@ -546,10 +547,16 @@ namespace YOLODetectionApp
 
             }
 
-            // 计算分隔线的长度（基于文本框的宽度）
-            string separatorLine = new string('-', txtDetectionResults.ClientSize.Width / 10);
-            // 在TextBox中添加分隔线
+            // 获取TextBox的宽度
+            int textBoxWidth = txtDetectionResults.ClientSize.Width;
+
+            // 计算分割线长度
+            string separatorLine = new string('-', textBoxWidth / 10);
+
+            // 向TextBox中添加分割线
             txtDetectionResults.AppendText(separatorLine + Environment.NewLine);
+
+
             return outputImage;
         }
     }
