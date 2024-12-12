@@ -29,8 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.pictureBoxInput = new System.Windows.Forms.PictureBox();
-            this.pictureBoxOutput = new System.Windows.Forms.PictureBox();
+            this.pictureBox = new System.Windows.Forms.PictureBox();
             this.btnSelectImage = new System.Windows.Forms.Button();
             this.btnDetect = new System.Windows.Forms.Button();
             this.numericUpDownConfidence = new System.Windows.Forms.NumericUpDown();
@@ -50,32 +49,27 @@
             this.BtnSelectFolder = new System.Windows.Forms.Button();
             this.BtnBatchDetect = new System.Windows.Forms.Button();
             this.txtFolderPath = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxInput)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput)).BeginInit();
+            this.txtImagePath = new System.Windows.Forms.TextBox();
+            this.btnRtsp = new System.Windows.Forms.Button();
+            this.btnRtspLive = new System.Windows.Forms.Button();
+            this.txtRtspPath = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConfidence)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNMS)).BeginInit();
             this.SuspendLayout();
             // 
-            // pictureBoxInput
+            // pictureBox
             // 
-            this.pictureBoxInput.Location = new System.Drawing.Point(12, 180);
-            this.pictureBoxInput.Name = "pictureBoxInput";
-            this.pictureBoxInput.Size = new System.Drawing.Size(1024, 673);
-            this.pictureBoxInput.TabIndex = 0;
-            this.pictureBoxInput.TabStop = false;
-            // 
-            // pictureBoxOutput
-            // 
-            this.pictureBoxOutput.Location = new System.Drawing.Point(1042, 180);
-            this.pictureBoxOutput.Name = "pictureBoxOutput";
-            this.pictureBoxOutput.Size = new System.Drawing.Size(1024, 673);
-            this.pictureBoxOutput.TabIndex = 1;
-            this.pictureBoxOutput.TabStop = false;
+            this.pictureBox.Location = new System.Drawing.Point(800, 0);
+            this.pictureBox.Name = "pictureBox";
+            this.pictureBox.Size = new System.Drawing.Size(1024, 768);
+            this.pictureBox.TabIndex = 1;
+            this.pictureBox.TabStop = false;
             // 
             // btnSelectImage
             // 
-            this.btnSelectImage.Location = new System.Drawing.Point(886, 124);
+            this.btnSelectImage.Location = new System.Drawing.Point(12, 235);
             this.btnSelectImage.Name = "btnSelectImage";
             this.btnSelectImage.Size = new System.Drawing.Size(150, 50);
             this.btnSelectImage.TabIndex = 2;
@@ -85,7 +79,7 @@
             // 
             // btnDetect
             // 
-            this.btnDetect.Location = new System.Drawing.Point(1042, 124);
+            this.btnDetect.Location = new System.Drawing.Point(601, 236);
             this.btnDetect.Name = "btnDetect";
             this.btnDetect.Size = new System.Drawing.Size(150, 50);
             this.btnDetect.TabIndex = 3;
@@ -95,7 +89,7 @@
             // 
             // numericUpDownConfidence
             // 
-            this.numericUpDownConfidence.Location = new System.Drawing.Point(1042, 11);
+            this.numericUpDownConfidence.Location = new System.Drawing.Point(631, 24);
             this.numericUpDownConfidence.Name = "numericUpDownConfidence";
             this.numericUpDownConfidence.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownConfidence.TabIndex = 4;
@@ -110,7 +104,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(984, 16);
+            this.label1.Location = new System.Drawing.Point(553, 29);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(52, 15);
             this.label1.TabIndex = 5;
@@ -128,7 +122,7 @@
             // 
             // BtnLoadWeights
             // 
-            this.BtnLoadWeights.Location = new System.Drawing.Point(12, 68);
+            this.BtnLoadWeights.Location = new System.Drawing.Point(12, 67);
             this.BtnLoadWeights.Name = "BtnLoadWeights";
             this.BtnLoadWeights.Size = new System.Drawing.Size(150, 50);
             this.BtnLoadWeights.TabIndex = 7;
@@ -138,7 +132,7 @@
             // 
             // BtnLoadClassNames
             // 
-            this.BtnLoadClassNames.Location = new System.Drawing.Point(12, 124);
+            this.BtnLoadClassNames.Location = new System.Drawing.Point(12, 123);
             this.BtnLoadClassNames.Name = "BtnLoadClassNames";
             this.BtnLoadClassNames.Size = new System.Drawing.Size(150, 50);
             this.BtnLoadClassNames.TabIndex = 8;
@@ -148,28 +142,28 @@
             // 
             // txtConfigPath
             // 
-            this.txtConfigPath.Location = new System.Drawing.Point(168, 26);
+            this.txtConfigPath.Location = new System.Drawing.Point(168, 24);
             this.txtConfigPath.Name = "txtConfigPath";
             this.txtConfigPath.Size = new System.Drawing.Size(333, 25);
             this.txtConfigPath.TabIndex = 9;
             // 
             // txtWeightsPath
             // 
-            this.txtWeightsPath.Location = new System.Drawing.Point(168, 83);
+            this.txtWeightsPath.Location = new System.Drawing.Point(168, 80);
             this.txtWeightsPath.Name = "txtWeightsPath";
             this.txtWeightsPath.Size = new System.Drawing.Size(333, 25);
             this.txtWeightsPath.TabIndex = 10;
             // 
             // txtClassNamesPath
             // 
-            this.txtClassNamesPath.Location = new System.Drawing.Point(168, 139);
+            this.txtClassNamesPath.Location = new System.Drawing.Point(168, 136);
             this.txtClassNamesPath.Name = "txtClassNamesPath";
             this.txtClassNamesPath.Size = new System.Drawing.Size(333, 25);
             this.txtClassNamesPath.TabIndex = 11;
             // 
             // numericUpDownFontSize
             // 
-            this.numericUpDownFontSize.Location = new System.Drawing.Point(1042, 83);
+            this.numericUpDownFontSize.Location = new System.Drawing.Point(631, 80);
             this.numericUpDownFontSize.Name = "numericUpDownFontSize";
             this.numericUpDownFontSize.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownFontSize.TabIndex = 12;
@@ -177,7 +171,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(969, 88);
+            this.label2.Location = new System.Drawing.Point(538, 85);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 15);
             this.label2.TabIndex = 13;
@@ -185,18 +179,18 @@
             // 
             // txtDetectionResults
             // 
-            this.txtDetectionResults.Location = new System.Drawing.Point(1198, 10);
+            this.txtDetectionResults.Location = new System.Drawing.Point(0, 421);
             this.txtDetectionResults.Multiline = true;
             this.txtDetectionResults.Name = "txtDetectionResults";
             this.txtDetectionResults.ReadOnly = true;
             this.txtDetectionResults.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDetectionResults.Size = new System.Drawing.Size(868, 163);
+            this.txtDetectionResults.Size = new System.Drawing.Size(794, 347);
             this.txtDetectionResults.TabIndex = 14;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(1005, 52);
+            this.label3.Location = new System.Drawing.Point(574, 57);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(31, 15);
             this.label3.TabIndex = 16;
@@ -204,7 +198,7 @@
             // 
             // numericUpDownNMS
             // 
-            this.numericUpDownNMS.Location = new System.Drawing.Point(1042, 47);
+            this.numericUpDownNMS.Location = new System.Drawing.Point(631, 52);
             this.numericUpDownNMS.Name = "numericUpDownNMS";
             this.numericUpDownNMS.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownNMS.TabIndex = 15;
@@ -212,7 +206,7 @@
             // 
             // BtnSelectFolder
             // 
-            this.BtnSelectFolder.Location = new System.Drawing.Point(535, 11);
+            this.BtnSelectFolder.Location = new System.Drawing.Point(12, 179);
             this.BtnSelectFolder.Name = "BtnSelectFolder";
             this.BtnSelectFolder.Size = new System.Drawing.Size(150, 50);
             this.BtnSelectFolder.TabIndex = 17;
@@ -222,7 +216,7 @@
             // 
             // BtnBatchDetect
             // 
-            this.BtnBatchDetect.Location = new System.Drawing.Point(729, 10);
+            this.BtnBatchDetect.Location = new System.Drawing.Point(601, 180);
             this.BtnBatchDetect.Name = "BtnBatchDetect";
             this.BtnBatchDetect.Size = new System.Drawing.Size(150, 50);
             this.BtnBatchDetect.TabIndex = 18;
@@ -232,16 +226,55 @@
             // 
             // txtFolderPath
             // 
-            this.txtFolderPath.Location = new System.Drawing.Point(535, 83);
+            this.txtFolderPath.Location = new System.Drawing.Point(168, 192);
             this.txtFolderPath.Name = "txtFolderPath";
-            this.txtFolderPath.Size = new System.Drawing.Size(344, 25);
+            this.txtFolderPath.Size = new System.Drawing.Size(333, 25);
             this.txtFolderPath.TabIndex = 19;
+            // 
+            // txtImagePath
+            // 
+            this.txtImagePath.Location = new System.Drawing.Point(168, 248);
+            this.txtImagePath.Name = "txtImagePath";
+            this.txtImagePath.Size = new System.Drawing.Size(333, 25);
+            this.txtImagePath.TabIndex = 20;
+            // 
+            // btnRtsp
+            // 
+            this.btnRtsp.Location = new System.Drawing.Point(12, 359);
+            this.btnRtsp.Name = "btnRtsp";
+            this.btnRtsp.Size = new System.Drawing.Size(150, 51);
+            this.btnRtsp.TabIndex = 21;
+            this.btnRtsp.Text = "RTSP";
+            this.btnRtsp.UseVisualStyleBackColor = true;
+            this.btnRtsp.Click += new System.EventHandler(this.BtnRtspDetect_Click);
+            // 
+            // btnRtspLive
+            // 
+            this.btnRtspLive.Location = new System.Drawing.Point(351, 359);
+            this.btnRtspLive.Name = "btnRtspLive";
+            this.btnRtspLive.Size = new System.Drawing.Size(150, 51);
+            this.btnRtspLive.TabIndex = 22;
+            this.btnRtspLive.Text = "RTSP live";
+            this.btnRtspLive.UseVisualStyleBackColor = true;
+            this.btnRtspLive.Click += new System.EventHandler(this.BtnRtspLiveDetect_Click);
+            // 
+            // txtRtspPath
+            // 
+            this.txtRtspPath.Location = new System.Drawing.Point(12, 316);
+            this.txtRtspPath.Name = "txtRtspPath";
+            this.txtRtspPath.Size = new System.Drawing.Size(489, 25);
+            this.txtRtspPath.TabIndex = 23;
+            this.txtRtspPath.Text = "rtsp://admin:1qaz!QAZ@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0\n";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(2095, 869);
+            this.ClientSize = new System.Drawing.Size(1836, 791);
+            this.Controls.Add(this.txtRtspPath);
+            this.Controls.Add(this.btnRtspLive);
+            this.Controls.Add(this.btnRtsp);
+            this.Controls.Add(this.txtImagePath);
             this.Controls.Add(this.txtFolderPath);
             this.Controls.Add(this.BtnBatchDetect);
             this.Controls.Add(this.BtnSelectFolder);
@@ -260,12 +293,10 @@
             this.Controls.Add(this.numericUpDownConfidence);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.btnSelectImage);
-            this.Controls.Add(this.pictureBoxOutput);
-            this.Controls.Add(this.pictureBoxInput);
+            this.Controls.Add(this.pictureBox);
             this.Name = "MainForm";
             this.Text = "VisionInspection";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxInput)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConfidence)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNMS)).EndInit();
@@ -275,9 +306,7 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox pictureBoxInput;
-        private System.Windows.Forms.PictureBox pictureBoxOutput;
+        private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.Button btnSelectImage;
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.NumericUpDown numericUpDownConfidence;
@@ -297,6 +326,10 @@
         private System.Windows.Forms.Button BtnSelectFolder;
         private System.Windows.Forms.Button BtnBatchDetect;
         private System.Windows.Forms.TextBox txtFolderPath;
+        private System.Windows.Forms.TextBox txtImagePath;
+        private System.Windows.Forms.Button btnRtsp;
+        private System.Windows.Forms.Button btnRtspLive;
+        private System.Windows.Forms.TextBox txtRtspPath;
     }
 }
 

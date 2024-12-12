@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace YOLODetectionApp
@@ -17,8 +19,7 @@ namespace YOLODetectionApp
         private string classNamesFile;
         private string FolderPath;
         private string resultFolderPath;
-
-        private static string imagePath;
+        private string imagePath;
 
 
         private string[] classNames;
@@ -96,6 +97,7 @@ namespace YOLODetectionApp
             txtWeightsPath.ReadOnly = true;
             txtClassNamesPath.ReadOnly = true;
             txtFolderPath.ReadOnly = true;
+            txtImagePath.ReadOnly = true;
         }
 
         private void TryLoadDefaultFiles()
@@ -230,19 +232,21 @@ namespace YOLODetectionApp
                 openFileDialog.Filter = "图像文件|*.jpg;*.jpeg;*.png;*.bmp|所有文件|*.*";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    inputImage = Cv2.ImRead(openFileDialog.FileName);
 
                     imagePath = openFileDialog.FileName;
+                    txtImagePath.Text = imagePath;
+
+                    inputImage = Cv2.ImRead(imagePath);
 
                     // 获取图片和PictureBox的大小
-                    int pictureBoxWidth = pictureBoxInput.Width;
-                    int pictureBoxHeight = pictureBoxInput.Height;
+                    int pictureBoxWidth = pictureBox.Width;
+                    int pictureBoxHeight = pictureBox.Height;
 
                     // 调整图像大小以适应PictureBox
                     Mat resizedImage = ResizeImage(inputImage, pictureBoxWidth, pictureBoxHeight);
 
                     // 将调整后的图像显示在PictureBox中
-                    pictureBoxInput.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
+                    pictureBox.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
                 }
             }
         }
@@ -257,7 +261,7 @@ namespace YOLODetectionApp
                 return;
             }
 
-            if (inputImage.Empty())
+            if (inputImage == null)
             {
                 MessageBox.Show("请先选择一张图像！");
                 return;
@@ -267,7 +271,7 @@ namespace YOLODetectionApp
             LoadYOLOModel();
 
             // 进行物体检测
-            var detectedImage = DetectObjects(inputImage);
+            var detectedImage = DetectObjects(inputImage, imagePath);
 
             // 将推理结果图像保存到 exe 目录下
             try
@@ -280,14 +284,14 @@ namespace YOLODetectionApp
             }
 
             // 获取图片和PictureBox的大小
-            int pictureBoxWidth = pictureBoxOutput.Width;
-            int pictureBoxHeight = pictureBoxOutput.Height;
+            int pictureBoxWidth = pictureBox.Width;
+            int pictureBoxHeight = pictureBox.Height;
 
             // 调整图像大小以适应PictureBox
             Mat resizedImage = ResizeImage(detectedImage, pictureBoxWidth, pictureBoxHeight);
 
             // 将调整后的图像显示在PictureBox中
-            pictureBoxOutput.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
+            pictureBox.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
 
         }
 
@@ -308,7 +312,7 @@ namespace YOLODetectionApp
 
             // 使用OpenCV进行图像缩放
             Mat resizedImage = new Mat();
-            Cv2.Resize(image, resizedImage, new Size(newWidth, newHeight));
+            Cv2.Resize(image, resizedImage, new OpenCvSharp.Size(newWidth, newHeight));
             return resizedImage;
         }
 
@@ -438,7 +442,6 @@ namespace YOLODetectionApp
         {
             // 读取图片
             Mat inputImage = Cv2.ImRead(imagePath);
-            MainForm.imagePath = imagePath;
             if (inputImage.Empty())
             {
                 MessageBox.Show($"无法读取图片：{imagePath}");
@@ -446,7 +449,7 @@ namespace YOLODetectionApp
             }
 
             // 使用YOLO模型进行检测
-            var detectedImage = DetectObjects(inputImage);
+            var detectedImage = DetectObjects(inputImage, imagePath);
 
             // 获取原始文件名
             string fileName = Path.GetFileName(imagePath);
@@ -463,6 +466,163 @@ namespace YOLODetectionApp
                 return;
             }
         }
+
+        private VideoCapture _videoCapture = null;
+        private bool isDetecting = false;
+        private CancellationTokenSource _cancellationTokenSource = null;
+
+        private void BtnRtspDetect_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+                // 尝试连接 RTSP 流
+                _videoCapture = new VideoCapture(txtRtspPath.Text);
+
+                // 检查视频流是否正常打开
+                if (_videoCapture.IsOpened())
+                {
+                    // 读取一帧
+                    Mat frame = new Mat();
+                    if (_videoCapture.Read(frame) && !frame.Empty())
+                    {
+                        // 模型检测（调用检测逻辑）
+                        var detectedImage = DetectObjects(frame, null);
+
+                        // 将推理结果图像保存到 exe 目录下
+                        try
+                        {
+                            Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"保存图像时发生错误: {ex.Message}");
+                        }
+
+                        // 获取图片和PictureBox的大小
+                        int pictureBoxWidth = pictureBox.Width;
+                        int pictureBoxHeight = pictureBox.Height;
+
+                        // 调整图像大小以适应PictureBox
+                        Mat resizedImage = ResizeImage(detectedImage, pictureBoxWidth, pictureBoxHeight);
+
+                        // 将调整后的图像显示在PictureBox中
+                        pictureBox.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
+                    }
+                    else
+                    {
+                        MessageBox.Show("读取帧失败，流可能为空或损坏。");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("无法打开RTSP流，请检查URL或网络连接！");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("连接失败：" + ex.Message);
+            }
+            finally
+            {
+                // 确保在异常或结束后释放资源
+                _videoCapture?.Release();
+            }
+        }
+
+        private async void BtnRtspLiveDetect_Click(object sender, EventArgs e)
+        {
+            if (!isDetecting)
+            {
+                // 开始循环检测
+                isDetecting = true;
+                btnRtspLive.Text = "停止检测";
+                _cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = _cancellationTokenSource.Token;
+
+                try
+                {
+                    // 尝试连接 RTSP 流
+                    _videoCapture = new VideoCapture(txtRtspPath.Text);
+                    if (!_videoCapture.IsOpened())
+                    {
+                        MessageBox.Show("无法打开RTSP流，请检查URL或网络连接！");
+                        return;
+                    }
+                    int retryCount = 0;
+                    const int maxRetries = 5; // 最大重试次数
+                    // 循环检测
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        Mat frame = new Mat();
+                        if (_videoCapture.Read(frame) && !frame.Empty())
+                        {
+                            // 模型检测（调用检测逻辑）
+                            var detectedImage = DetectObjects(frame, null);
+
+                            // 将推理结果图像保存到 exe 目录下
+                            try
+                            {
+                                Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"保存图像时发生错误: {ex.Message}");
+                            }
+
+                            // 获取图片和PictureBox的大小
+                            int pictureBoxWidth = pictureBox.Width;
+                            int pictureBoxHeight = pictureBox.Height;
+
+                            // 调整图像大小以适应PictureBox
+                            Mat resizedImage = ResizeImage(detectedImage, pictureBoxWidth, pictureBoxHeight);
+
+                            // 将调整后的图像显示在PictureBox中
+                            pictureBox.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
+                        }
+                        else
+                        {
+                            // 如果读取失败，说明流断开，尝试重新连接
+                            retryCount++;
+
+                            if (retryCount > maxRetries)
+                            {
+                                MessageBox.Show("RTSP流断开，无法重新连接，已超出最大重试次数。");
+                                break;
+                            }
+
+                            MessageBox.Show($"RTSP流断开，正在尝试重新连接 ({retryCount}/{maxRetries})...");
+                            _videoCapture.Release();
+                            await Task.Delay(2000); // 等待 2 秒后再重试连接
+                            _videoCapture = new VideoCapture(txtRtspPath.Text);
+
+                            // 再次检查流是否已连接
+                            if (!_videoCapture.IsOpened())
+                            {
+                                MessageBox.Show("无法重新连接RTSP流，请检查URL或网络连接！");
+                                break;
+                            }
+                        }
+                        // 等待一段时间再继续检测，避免过于频繁
+                        await Task.Delay(1000);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("检测过程中发生错误：" + ex.Message);
+                }
+            }
+            else
+            {
+                // 停止检测
+                isDetecting = false;
+                btnRtspLive.Text = "RTSP live";
+                _cancellationTokenSource?.Cancel(); // 取消任务
+                _videoCapture?.Release(); // 释放 VideoCapture 资源
+            }
+        }
+
+
         // 文件加载通用方法
         private string LoadFile(string filter)
         {
@@ -478,7 +638,7 @@ namespace YOLODetectionApp
         }
 
         // 检测物体
-        private Mat DetectObjects(Mat image)
+        private Mat DetectObjects(Mat image, string imagePath)
         {
             txtDetectionResults.AppendText(imagePath + Environment.NewLine);
 
@@ -486,7 +646,7 @@ namespace YOLODetectionApp
             int height = image.Height;
 
             // 图像预处理
-            var blob = CvDnn.BlobFromImage(image, 1.0 / 255.0, new Size(416, 416), new Scalar(0, 0, 0), true, false);
+            var blob = CvDnn.BlobFromImage(image, 1.0 / 255.0, new OpenCvSharp.Size(416, 416), new Scalar(0, 0, 0), true, false);
             net.SetInput(blob);
 
             // 获取输出层
@@ -556,19 +716,19 @@ namespace YOLODetectionApp
                     var labelSize = Cv2.GetTextSize(label, HersheyFonts.HersheySimplex, fontSize, 1, out int baseline);
 
                     // 计算文字位置
-                    Point labelOrigin;
-                    Point backgroundOrigin;
+                    OpenCvSharp.Point labelOrigin;
+                    OpenCvSharp.Point backgroundOrigin;
 
                     if (box.Y - labelSize.Height - 10 < 0)
                     {
                         // 如果顶部超出，将文字显示在标注框下方
-                        labelOrigin = new Point(box.X + 5, box.Y + box.Height + 10);
+                        labelOrigin = new OpenCvSharp.Point(box.X + 5, box.Y + box.Height + 10);
                         backgroundOrigin = labelOrigin;
                     }
                     else
                     {
                         // 默认显示在标注框上方
-                        labelOrigin = new Point(box.X + 5, box.Y - labelSize.Height - 10);
+                        labelOrigin = new OpenCvSharp.Point(box.X + 5, box.Y - labelSize.Height - 10);
                         backgroundOrigin = labelOrigin;
 
                     }
@@ -581,12 +741,12 @@ namespace YOLODetectionApp
                     backgroundOrigin.X -= 6;
                     backgroundOrigin.Y -= 5;
 
-                    Cv2.Rectangle(outputImage, new Rect(backgroundOrigin, new Size(backgroundWidth, backgroundHeight)), labelColor, Cv2.FILLED);
+                    Cv2.Rectangle(outputImage, new Rect(backgroundOrigin, new OpenCvSharp.Size(backgroundWidth, backgroundHeight)), labelColor, Cv2.FILLED);
 
                     Cv2.PutText(
                         outputImage,
                         label,
-                        new Point(labelOrigin.X, labelOrigin.Y + labelSize.Height),
+                        new OpenCvSharp.Point(labelOrigin.X, labelOrigin.Y + labelSize.Height),
                         HersheyFonts.HersheySimplex,
                         fontSize,
                         textColor,
@@ -609,10 +769,10 @@ namespace YOLODetectionApp
                 var textSize = Cv2.GetTextSize(noDetectionText, HersheyFonts.HersheySimplex, fontSize, 1, out int baseline);
 
                 // 计算文字和背景的位置
-                Point textOrg = new Point((width - textSize.Width) / 2, (height + textSize.Height) / 2);
+                OpenCvSharp.Point textOrg = new OpenCvSharp.Point((width - textSize.Width) / 2, (height + textSize.Height) / 2);
                 Rect backgroundRect = new Rect(
-                    new Point(textOrg.X - 10, textOrg.Y - textSize.Height - 5), // 背景左上角
-                    new Size(textSize.Width + 20, textSize.Height + 17) // 背景大小
+                    new OpenCvSharp.Point(textOrg.X - 10, textOrg.Y - textSize.Height - 5), // 背景左上角
+                    new OpenCvSharp.Size(textSize.Width + 20, textSize.Height + 17) // 背景大小
                 );
 
                 // 绘制背景

@@ -161,6 +161,9 @@
     <EmbeddedResource Include="costura-win-x86\OpenCvSharp.Extensions.dll" />
     <EmbeddedResource Include="costura-win-x86\OpenCvSharpExtern.dll" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="costura-win-x86\opencv_videoio_ffmpeg4100.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
