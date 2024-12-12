@@ -9,7 +9,9 @@ import shutil
 
 # 配置
 TRAIN_PERCENT = 0.8     # train占总数据的比例
-yolov3_voc_cfg = "cfg/yolov3-voc.cfg"
+cfg_path = "cfg/yolov3.cfg"
+batch = 64
+subdivisions = 16
 
 # 只保留 train 和 trainval 数据集
 sets = ['train', 'trainval']  
@@ -209,10 +211,10 @@ max_batches = max(6000, 2000 * classes)  # 每个class建议2000次, 最小值60
 steps1 = int(0.8 * max_batches)
 steps2 = int(0.9 * max_batches)
 
-# 读取 yolov3_voc_cfg 的文件内容
-with open(yolov3_voc_cfg, 'r') as cfg_file:
+# 读取 cfg_path 的文件内容
+with open(cfg_path, 'r') as cfg_file:
     lines = cfg_file.readlines()
-print(f"{yolov3_voc_cfg} 文件已读取")
+print(f"{cfg_path} 文件已读取")
 
 # 查找所有 yolo 关键字的行号
 yolo_line_numbers = []
@@ -258,22 +260,13 @@ if yolo_line_numbers:
 else:
     print("未找到 yolo 相关的行")
 
-# 查找 # Testing 和 # Training
+# 查找
 for i, line in enumerate(lines):
     if '# Testing' in line:
-        # 如果后面的 batch 和 subdivisions 没有被注释，则注释掉
-        if i + 1 < len(lines) and not lines[i + 1].strip().startswith("#"):
-            lines[i + 1] = f"# {lines[i + 1].strip()}\n"  # 注释掉 batch=1
-        if i + 2 < len(lines) and not lines[i + 2].strip().startswith("#"):
-            lines[i + 2] = f"# {lines[i + 2].strip()}\n"  # 注释掉 subdivisions=1
-        print(f"已注释 # Testing 相关代码")
-    elif '# Training' in line:
-        # 如果后面的 batch 和 subdivisions 是注释状态，则去掉注释
-        if i + 1 < len(lines) and lines[i + 1].strip().startswith("#"):
-            lines[i + 1] = lines[i + 1].lstrip('#').lstrip()  # 去掉 batch=64 注释
-        if i + 2 < len(lines) and lines[i + 2].strip().startswith("#"):
-            lines[i + 2] = lines[i + 2].lstrip('#').lstrip()  # 去掉 subdivisions=16 注释
-        print(f"已启用 # Training 相关代码")
+        lines[i + 1] = f'batch={batch}\n'  # 更新 batch 行
+        print(f"第 {i + 1} 行的 batch 已更新为 {batch}")
+        lines[i + 2] = f'subdivisions={subdivisions}\n'  # 更新 subdivisions 行
+        print(f"第 {i + 2} 行的 subdivisions 已更新为 {subdivisions}")
     elif 'max_batches =' in line:
         lines[i] = f'max_batches = {max_batches}\n'  # 更新 max_batches 行
         print(f"第 {i + 1} 行的 max_batches 已更新为 {max_batches}")
@@ -286,5 +279,3 @@ for i, line in enumerate(lines):
         cfg_file.writelines(lines)
 
 print(f"{os.path.join(TRAIN_DIR, 'train.cfg')} 文件已生成")
-
-
