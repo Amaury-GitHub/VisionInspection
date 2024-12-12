@@ -8,7 +8,7 @@ import glob
 import shutil
 
 # 配置
-TRAIN_PERCENT = 0.9     # train占总数据的比例
+TRAIN_PERCENT = 0.8     # train占总数据的比例
 yolov3_voc_cfg = "cfg/yolov3-voc.cfg"
 
 # 只保留 train 和 trainval 数据集
@@ -203,8 +203,11 @@ backup = {weights_dir.resolve()}
 print(f"{os.path.join(TRAIN_DIR, 'train.data')} 文件已生成")
 
 # 获取 filters 和 classes 的值
-filters = 3 * (5 + len(classes))  # 根据前面的代码计算 filters
 classes = len(classes)  # 计算 classes 的值
+filters = 3 * (5 + classes)  # 根据前面的代码计算 filters
+max_batches = 2000 * classes  # 每个class建议2000次
+steps1 = int(0.8 * max_batches)
+steps2 = int(0.9 * max_batches)
 
 # 读取 yolov3_voc_cfg 的文件内容
 with open(yolov3_voc_cfg, 'r') as cfg_file:
@@ -271,10 +274,17 @@ for i, line in enumerate(lines):
         if i + 2 < len(lines) and lines[i + 2].strip().startswith("#"):
             lines[i + 2] = lines[i + 2].lstrip('#').lstrip()  # 去掉 subdivisions=16 注释
         print(f"已启用 # Training 相关代码")
+    elif 'max_batches =' in line:
+        lines[i] = f'max_batches = {max_batches}\n'  # 更新 max_batches 行
+        print(f"第 {i + 1} 行的 max_batches 已更新为 {max_batches}")
+    elif 'steps=' in line:
+        lines[i] = f'steps={steps1},{steps2}\n'  # 更新 steps 行
+        print(f"第 {i + 1} 行的 steps 已更新为 {steps1},{steps2}")
 
     # 将更新后的内容写到 train_cfg_path
     with open(os.path.join(TRAIN_DIR, 'train.cfg'), 'w') as cfg_file:
         cfg_file.writelines(lines)
 
 print(f"{os.path.join(TRAIN_DIR, 'train.cfg')} 文件已生成")
+
 
