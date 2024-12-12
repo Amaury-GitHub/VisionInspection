@@ -205,7 +205,7 @@ print(f"{os.path.join(TRAIN_DIR, 'train.data')} 文件已生成")
 # 获取 filters 和 classes 的值
 classes = len(classes)  # 计算 classes 的值
 filters = 3 * (5 + classes)  # 根据前面的代码计算 filters
-max_batches = 2000 * classes  # 每个class建议2000次
+max_batches = max(6000, 2000 * classes)  # 每个class建议2000次, 最小值6000
 steps1 = int(0.8 * max_batches)
 steps2 = int(0.9 * max_batches)
 
