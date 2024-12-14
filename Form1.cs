@@ -286,6 +286,9 @@ namespace YOLODetectionApp
             // 加载模型（如果还未加载）
             LoadYOLOModel();
 
+            // 使用 OpenCV 读取图像
+            inputImage = Cv2.ImRead(imagePath);
+
             // 进行物体检测
             var detectedImage = DetectObjects(inputImage, imagePath);
 
@@ -457,7 +460,6 @@ namespace YOLODetectionApp
                             if (!_isPlaying)
                                 return;
                             AppendTextToTextbox("连接中断，尝试重新连接...");
-                            UpdateButtonText(btnRtspConnect, "连接中...");
                             Reconnect(); // 尝试重连
                         }));
                     };
@@ -470,6 +472,8 @@ namespace YOLODetectionApp
                     // 启动定时器进行连接验证
                     _isPlaying = false;
 
+                    // 更新按钮状态
+                    UpdateButtonText(btnRtspConnect, "连接中...");
                     txtRtspPath.Enabled = false;
                     _isConnected = true;
                 }
@@ -551,18 +555,11 @@ namespace YOLODetectionApp
                     // 开始播放
                     _mediaPlayer.Play(media);
 
-                    UpdateButtonText(btnRtspConnect, "连接中...");
                     AppendTextToTextbox("连接中...");
 
-                    // 检查定时器是否已释放或已经停止
-                    if (_connectionCheckTimer == null || _connectionCheckTimer.Enabled == false)
-                    {
-                        // 如果定时器已释放或未启动，则重新创建并启动定时器
-                        _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
-                        _connectionCheckTimer.Elapsed += CheckConnection;
-                        _connectionCheckTimer.Start();
-                    }
-
+                    _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
+                    _connectionCheckTimer.Elapsed += CheckConnection;
+                    _connectionCheckTimer.Start();
                 }
             }
             catch (Exception ex)
@@ -580,9 +577,9 @@ namespace YOLODetectionApp
                 bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
                 if (success)
                 {
+                    UpdateButtonText(btnRtspConnect, "断开连接");
                     _isPlaying = true;
                     _connectionCheckTimer.Stop(); // 停止检查
-                    UpdateButtonText(btnRtspConnect, "断开连接");
                     AppendTextToTextbox("连接完成");
                 }
             }
@@ -676,7 +673,7 @@ namespace YOLODetectionApp
                     while (!cancellationToken.IsCancellationRequested)
                     {
 
-                        if (_mediaPlayer != null && btnRtspConnect.Text == "断开连接")
+                        if (_mediaPlayer != null)
                         { 
                             // 尝试截图并进行检测
                             bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
