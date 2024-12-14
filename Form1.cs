@@ -457,6 +457,7 @@ namespace YOLODetectionApp
                             if (!_isPlaying)
                                 return;
                             AppendTextToTextbox("连接中断，尝试重新连接...");
+                            UpdateButtonText(btnRtspConnect, "连接中...");
                             Reconnect(); // 尝试重连
                         }));
                     };
@@ -553,13 +554,14 @@ namespace YOLODetectionApp
                     UpdateButtonText(btnRtspConnect, "连接中...");
                     AppendTextToTextbox("连接中...");
 
-                    // 只在第一次创建定时器时进行创建
-                    if (_connectionCheckTimer == null)
+                    // 检查定时器是否已释放或已经停止
+                    if (_connectionCheckTimer == null || _connectionCheckTimer.Enabled == false)
                     {
+                        // 如果定时器已释放或未启动，则重新创建并启动定时器
                         _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
                         _connectionCheckTimer.Elapsed += CheckConnection;
+                        _connectionCheckTimer.Start();
                     }
-                    _connectionCheckTimer.Start();
 
                 }
             }
