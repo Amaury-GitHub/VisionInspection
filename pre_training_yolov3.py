@@ -11,7 +11,9 @@ import shutil
 TRAIN_PERCENT = 0.8     # train占总数据的比例
 cfg_path = "cfg/yolov3.cfg"
 batch = 64
-subdivisions = 16
+subdivisions = 8
+width = 608
+height = 608
 
 # 只保留 train 和 trainval 数据集
 sets = ['train', 'trainval']  
@@ -252,13 +254,28 @@ if yolo_line_numbers:
             print(f"第 {classes_line_number + 1} 行的 classes 已更新为 {classes}")
         else:
             print(f"第 {yolo_line_number + 1} 行的 filters 或 classes 未找到")
+else:
+    print("未找到 yolo 相关的行")
+
+# 查找
+for i, line in enumerate(lines):
+    if 'width=' in line:
+        lines[i] = f'width={width}\n'  # 更新 width 行
+        print(f"第 {i + 1} 行的 width 已更新为 {width}")
+    elif 'height=' in line:
+        lines[i] = f'height={height}\n'  # 更新 height 行
+        print(f"第 {i + 1} 行的 height 已更新为 {height}")
+    elif 'max_batches =' in line:
+        lines[i] = f'max_batches = {max_batches}\n'  # 更新 max_batches 行
+        print(f"第 {i + 1} 行的 max_batches 已更新为 {max_batches}")
+    elif 'steps=' in line:
+        lines[i] = f'steps={steps1},{steps2}\n'  # 更新 steps 行
+        print(f"第 {i + 1} 行的 steps 已更新为 {steps1},{steps2}")
 
     # 将更新后的内容写到 test_cfg_path
     with open(os.path.join(WEIGHTS_DIR, 'test.cfg'), 'w') as cfg_file:
         cfg_file.writelines(lines)
-    print(f"{os.path.join(WEIGHTS_DIR, 'test.cfg')} 文件已生成")
-else:
-    print("未找到 yolo 相关的行")
+print(f"{os.path.join(WEIGHTS_DIR, 'test.cfg')} 文件已生成")
 
 # 查找
 for i, line in enumerate(lines):
@@ -267,12 +284,6 @@ for i, line in enumerate(lines):
         print(f"第 {i + 1} 行的 batch 已更新为 {batch}")
         lines[i + 2] = f'subdivisions={subdivisions}\n'  # 更新 subdivisions 行
         print(f"第 {i + 2} 行的 subdivisions 已更新为 {subdivisions}")
-    elif 'max_batches =' in line:
-        lines[i] = f'max_batches = {max_batches}\n'  # 更新 max_batches 行
-        print(f"第 {i + 1} 行的 max_batches 已更新为 {max_batches}")
-    elif 'steps=' in line:
-        lines[i] = f'steps={steps1},{steps2}\n'  # 更新 steps 行
-        print(f"第 {i + 1} 行的 steps 已更新为 {steps1},{steps2}")
 
     # 将更新后的内容写到 train_cfg_path
     with open(os.path.join(TRAIN_DIR, 'train.cfg'), 'w') as cfg_file:
