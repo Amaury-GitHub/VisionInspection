@@ -569,7 +569,7 @@ namespace YOLODetectionApp
         // 检查连接状态的定时器回调
         private void CheckConnection(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (_mediaPlayer != null && !_isPlaying)
+            if (_mediaPlayer != null)
             {
                 bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
                 if (success)
@@ -578,7 +578,6 @@ namespace YOLODetectionApp
                     _isPlaying = true;
                     _connectionCheckTimer.Stop(); // 停止检查
                     AppendTextToTextbox("连接完成");
-
                 }
             }
         }
@@ -670,31 +669,30 @@ namespace YOLODetectionApp
                 {
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        bool success = false; // 定义 success 变量
 
                         if (_mediaPlayer != null)
                         { 
                             // 尝试截图并进行检测
-                            success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+                            bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+
+                            if (success)
+                            {
+                                if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
+                                {
+                                    MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                                    break;
+                                }
+
+                                LoadYOLOModel();
+
+                                inputImage = Cv2.ImRead(snapshotPath);
+
+                                var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
+
+                                RenewPictureBox(detectedImage, pictureBox);
+                            }
                         }
                         
-                        if (success)
-                        {
-                            if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                            {
-                                MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                                break;
-                            }
-
-                            LoadYOLOModel();
-
-                            inputImage = Cv2.ImRead(snapshotPath);
-
-                            var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
-
-                            RenewPictureBox(detectedImage, pictureBox);
-                        }
-
                         await Task.Delay(delayMs);
                     }
                 }, cancellationToken);
