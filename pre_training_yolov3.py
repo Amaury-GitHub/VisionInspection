@@ -43,7 +43,7 @@ train_count = int(num * TRAIN_PERCENT)  # 从总数据集中选择90%作为train
 
 # 随机选择数据
 random.seed(42)  # 保证结果可重复
-train = set(random.sample(total_xml, train_count))  # train集合 (占总数据的90%)
+train = set(random.sample(total_xml, train_count))  # train集合
 trainval = set(total_xml) - train  # 剩余数据分配给 trainval
 
 # 输出调试信息
