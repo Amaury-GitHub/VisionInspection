@@ -8,6 +8,31 @@ import glob
 import shutil
 
 # 配置
+# for 4GB-RAM GPUs
+#     YOLOv4-Leaky-416: batch=64, subdivisions=64.
+# for 6GB-RAM GPUs
+#     YOLOv4-Leaky-416: batch=64, subdivisions=32.
+#     YOLOv4-Mish-416: batch=64, subdivisions=64.
+# for 8GB-RAM GPUs
+#     YOLOv4-Mish-416: batch=64, subdivisions=32.
+# for 11GB-RAM GPUs (1080ti, 2080ti)
+#     YOLOv4-Leaky-416: batch=64, subdivisions=16.
+#     YOLOv4-Mish-416: batch=64, subdivisions=16.
+# for 12GB-RAM GPUs (titan x, titan xp, titan v)
+#     YOLOv4-Leaky: batch=64, subdivisions=16.
+#     YOLOv4-SAM-Leaky: batch=64, subdivisions=16.
+# for 16GB-RAM GPUs (p100)
+#     YOLOv4: batch=64, subdivisions=16.
+#     YOLOv4-Mish: batch=64, subdivisions=16.
+#     YOLOv4-SAM-Mish: batch=64, subdivisions=16.
+# for 24GB-RAM GPUs (titan rtx, rtx 6000)
+#     YOLOv4-Leaky: batch=64, subdivisions=8.
+#     YOLOv4-SAM-Leaky: batch=64, subdivisions=8.
+# for 32GB-RAM GPUs (v100, v100s)
+#     YOLOv4: batch=64, subdivisions=8.
+#     YOLOv4-Mish: batch=64, subdivisions=8.
+#     YOLOv4-SAM-Mish: batch=64, subdivisions=8.
+
 TRAIN_PERCENT = 0.8     # train占总数据的比例
 cfg_path = "cfg/yolov4.cfg"
 batch = 64
