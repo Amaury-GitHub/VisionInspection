@@ -21,8 +21,8 @@ namespace YOLODetectionApp
         private string classNamesFile;
         private string FolderPath;
         private string resultFolderPath;
-        private string imagePath; 
-        private string snapshotPath; 
+        private string imagePath;
+        private string snapshotPath;
 
 
         private string[] classNames;
@@ -293,14 +293,8 @@ namespace YOLODetectionApp
             var detectedImage = DetectObjects(inputImage, imagePath);
 
             // 将推理结果图像保存到 exe 目录下
-            try
-            {
-                Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"保存图像时发生错误: {ex.Message}");
-            }
+            Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+
 
             RenewPictureBox(detectedImage, pictureBox);
         }
@@ -403,12 +397,6 @@ namespace YOLODetectionApp
             // 读取图片
             inputImage = Cv2.ImRead(imagePath);
 
-            if (inputImage.Empty())
-            {
-                MessageBox.Show($"无法读取图片：{imagePath}");
-                return Task.CompletedTask;
-            }
-
             // 使用YOLO模型进行检测
             var detectedImage = DetectObjects(inputImage, imagePath);
 
@@ -416,16 +404,7 @@ namespace YOLODetectionApp
             string fileName = Path.GetFileName(imagePath);
 
             // 保存推理后的图像
-            string resultImagePath = Path.Combine(resultFolderPath, fileName);
-            try
-            {
-                Cv2.ImWrite(resultImagePath, detectedImage);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"保存图像时发生错误: {ex.Message}");
-                return Task.CompletedTask;
-            }
+            Cv2.ImWrite(Path.Combine(resultFolderPath, fileName), detectedImage);
 
             return Task.CompletedTask;
         }
@@ -448,7 +427,7 @@ namespace YOLODetectionApp
                         {
                             if (_isPlaying)
                                 return;
-                            MessageBox.Show("连接失败，请检查地址是否可达！");
+                            MessageBox.Show("连接失败，请检查地址是否正确！");
                             AppendTextToTextbox("连接失败");
                             Disconnect();
                         }));
@@ -599,39 +578,32 @@ namespace YOLODetectionApp
             }
             try
             {
-                    // 尝试截图并检查是否成功
-                    bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+                // 尝试截图并检查是否成功
+                bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
 
-                    if (success)
+                if (success)
+                {
+                    // 检查配置文件和图像是否有效
+                    if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
                     {
-                        // 检查配置文件和图像是否有效
-                        if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                        {
-                            MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                            return;
-                        }
-
-                        // 加载模型（如果还未加载）
-                        LoadYOLOModel();
-
-                        inputImage = Cv2.ImRead(snapshotPath);
-
-                        // 进行物体检测
-                        var detectedImage = DetectObjects(inputImage, null);
-
-                        // 将推理结果图像保存到 exe 目录下
-                        try
-                        {
-                            Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"保存图像时发生错误: {ex.Message}");
-                        }
-
-                        RenewPictureBox(detectedImage, pictureBox);
+                        MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                        return;
                     }
-                
+
+                    // 加载模型（如果还未加载）
+                    LoadYOLOModel();
+
+                    inputImage = Cv2.ImRead(snapshotPath);
+
+                    // 进行物体检测
+                    var detectedImage = DetectObjects(inputImage, null);
+
+                    // 将推理结果图像保存到 exe 目录下
+                    Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+
+                    RenewPictureBox(detectedImage, pictureBox);
+                }
+
             }
             catch (Exception ex)
             {
@@ -665,37 +637,36 @@ namespace YOLODetectionApp
             cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             UpdateButtonText(btnRtspLiveDetect, "停止检测");
-
+            btnRtspConnect.Enabled = false;
             try
             {
                 await Task.Run(async () =>
                 {
                     while (!cancellationToken.IsCancellationRequested)
                     {
+                        // 尝试截图并进行检测
+                        bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
 
-                        if (_mediaPlayer != null)
-                        { 
-                            // 尝试截图并进行检测
-                            bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
-
-                            if (success)
+                        if (success)
+                        {
+                            if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
                             {
-                                if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                                {
-                                    MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                                    break;
-                                }
-
-                                LoadYOLOModel();
-
-                                inputImage = Cv2.ImRead(snapshotPath);
-
-                                var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
-
-                                RenewPictureBox(detectedImage, pictureBox);
+                                MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                                break;
                             }
+
+                            LoadYOLOModel();
+
+                            inputImage = Cv2.ImRead(snapshotPath);
+
+                            var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
+                            // 将推理结果图像保存到 exe 目录下
+                            Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+
+                            RenewPictureBox(detectedImage, pictureBox);
+
                         }
-                        
+
                         await Task.Delay(delayMs);
                     }
                 }, cancellationToken);
@@ -707,6 +678,7 @@ namespace YOLODetectionApp
             finally
             {
                 UpdateButtonText(btnRtspLiveDetect, "RTSP live");
+                btnRtspConnect.Enabled = true;
             }
         }
 
