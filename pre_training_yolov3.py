@@ -11,7 +11,7 @@ import shutil
 TRAIN_PERCENT = 0.8     # train占总数据的比例
 cfg_path = "cfg/yolov3.cfg"
 batch = 64
-subdivisions = 16
+subdivisions = 8
 
 # 只保留 train 和 trainval 数据集
 sets = ['train', 'trainval']  
