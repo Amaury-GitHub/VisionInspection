@@ -7,18 +7,17 @@ from pathlib import Path
 import glob
 import shutil
 
-# 配置
-TRAIN_PERCENT = 0.8     # train占总数据的比例
-cfg_path = "cfg/yolov3.cfg"
+# 配置参数
+TRAIN_PERCENT = 0.8             # train占总数据的比例
+cfg_path = "cfg/yolov3.cfg"     # 模板文件的路径
 batch = 64
-subdivisions = 8
+subdivisions = 8                # 根据显存大小设置
 width = 608
-height = 608
-angle = 1
+height = 608                    # 32的倍数{320，352…..608}, 最小320*320，最大608*608, 影响precision
 
 # 只保留 train 和 trainval 数据集
 sets = ['train', 'trainval']  
-classes = []  # 用于存储类别名称的列表
+classes = []
 
 # 数据集路径
 BASE_DIR = "VOCdevkit"
@@ -37,12 +36,12 @@ os.makedirs(IMAGES_DIR, exist_ok=True)
 os.makedirs(TRAIN_DIR, exist_ok=True)
 os.makedirs(WEIGHTS_DIR, exist_ok=True)
 
-# 获取所有 XML 文件（即所有图片的注释文件）
+# 获取所有 XML 文件
 total_xml = [f[:-4] for f in os.listdir(ANNOTATIONS_DIR) if f.endswith(".xml")]
 num = len(total_xml)  # 总数据量
 
 # 计算划分数量
-train_count = int(num * TRAIN_PERCENT)  # 从总数据集中选择90%作为train
+train_count = int(num * TRAIN_PERCENT)  # 根据设置的比例分配给train
 
 # 随机选择数据
 random.seed(42)  # 保证结果可重复
@@ -214,18 +213,18 @@ max_batches = max(6000, 2000 * classes)  # 每个class建议2000次, 最小值60
 steps1 = int(0.8 * max_batches)
 steps2 = int(0.9 * max_batches)
 
-# 读取 cfg_path 的文件内容
+# 读取模板文件
 with open(cfg_path, 'r') as cfg_file:
     lines = cfg_file.readlines()
 print(f"{cfg_path} 文件已读取")
 
-# 查找所有 yolo 关键字的行号
+# 查找包含 yolo 关键字的行号
 yolo_line_numbers = []
 for i, line in enumerate(lines):
-    if 'yolo' in line.lower():  # 查找 yolo 关键字，忽略大小写
+    if 'yolo' in line.lower():
         yolo_line_numbers.append(i)
 
-# 如果找到了 yolo
+# 修改 filters 和 classes
 if yolo_line_numbers:
     print("开始修改 yolo 关键字上下文的 filters 和 classes")
     # 对于每个 yolo 行，更新对应的 filters 和 classes
@@ -245,7 +244,7 @@ if yolo_line_numbers:
                 classes_line_number = i
                 break
 
-        # 确保找到了 filters 和 classes
+        # 确保找到 filters 和 classes
         if filters_line_number is not None and classes_line_number is not None:
             # 更新 filters 和 classes 的值
             lines[filters_line_number] = f'filters={filters}\n'  # 更新 filters 行
@@ -258,7 +257,7 @@ if yolo_line_numbers:
 else:
     print("未找到 yolo 相关的行")
 
-# 查找
+# 查找需要修改的参数
 for i, line in enumerate(lines):
     if 'width=' in line:
         lines[i] = f'width={width}\n'  # 更新 width 行
@@ -266,9 +265,6 @@ for i, line in enumerate(lines):
     elif 'height=' in line:
         lines[i] = f'height={height}\n'  # 更新 height 行
         print(f"第 {i + 1} 行的 height 已更新为 {height}")
-    elif 'angle=' in line:
-        lines[i] = f'angle={angle}\n'  # 更新 angle 行
-        print(f"第 {i + 1} 行的 angle 已更新为 {angle}")
     elif 'max_batches =' in line:
         lines[i] = f'max_batches = {max_batches}\n'  # 更新 max_batches 行
         print(f"第 {i + 1} 行的 max_batches 已更新为 {max_batches}")
@@ -281,7 +277,7 @@ for i, line in enumerate(lines):
         cfg_file.writelines(lines)
 print(f"{os.path.join(WEIGHTS_DIR, 'test.cfg')} 文件已生成")
 
-# 查找
+# 查找需要修改的参数
 for i, line in enumerate(lines):
     if '# Testing' in line:
         lines[i + 1] = f'batch={batch}\n'  # 更新 batch 行
@@ -292,5 +288,4 @@ for i, line in enumerate(lines):
     # 将更新后的内容写到 train_cfg_path
     with open(os.path.join(TRAIN_DIR, 'train.cfg'), 'w') as cfg_file:
         cfg_file.writelines(lines)
-
 print(f"{os.path.join(TRAIN_DIR, 'train.cfg')} 文件已生成")
