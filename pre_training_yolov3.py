@@ -259,7 +259,12 @@ else:
 
 # 查找需要修改的参数
 for i, line in enumerate(lines):
-    if 'width=' in line:
+    if '# Testing' in line:
+        lines[i + 1] = f'batch=1\n'  # 更新 batch 行
+        print(f"第 {i + 1} 行的 batch 已更新为 1")
+        lines[i + 2] = f'subdivisions=1\n'  # 更新 subdivisions 行
+        print(f"第 {i + 2} 行的 subdivisions 已更新为 1")
+    elif 'width=' in line:
         lines[i] = f'width={width}\n'  # 更新 width 行
         print(f"第 {i + 1} 行的 width 已更新为 {width}")
     elif 'height=' in line:
