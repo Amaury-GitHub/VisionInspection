@@ -270,7 +270,7 @@
             this.txtRtspPath.Name = "txtRtspPath";
             this.txtRtspPath.Size = new System.Drawing.Size(333, 25);
             this.txtRtspPath.TabIndex = 23;
-            this.txtRtspPath.Text = "rtsp://zephyr.rtsp.stream/movie?streamKey=504e8fc8f56843d79fe691271f603daf";
+            this.txtRtspPath.Text = "rtsp://admin:1qaz!QAZ@192.168.1.108:554";
             // 
             // videoView1
             // 

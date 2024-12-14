@@ -443,29 +443,31 @@ namespace YOLODetectionApp
                         // 播放失败时弹窗提示
                         BeginInvoke(new Action(() =>
                         {
-                            MessageBox.Show("播放失败，请检查地址是否正确或网络连接！");
+                            if (_isPlaying)
+                                return;
+                            MessageBox.Show("连接失败，请检查地址是否可达！");
+                            AppendTextToTextbox("连接失败");
                             Disconnect();
                         }));
                     };
-
-                    // 创建并加载 RTSP 流媒体
-                    var media = new Media(_libVLC, txtRtspPath.Text, FromType.FromLocation);
-                    _mediaPlayer.Play(media);
-
-                    // 禁用音频
-                    _mediaPlayer.Mute = true;  // 静音，防止音频播放
-
-                    // 绑定 MediaPlayer 到 VideoView 控件以显示视频
-                    videoView1.MediaPlayer = _mediaPlayer;
+                    _mediaPlayer.Stopped += (s, args) =>
+                    {
+                        BeginInvoke(new Action(() =>
+                        {
+                            if (!_isPlaying)
+                                return;
+                            AppendTextToTextbox("连接中断，尝试重新连接...");
+                            Reconnect(); // 尝试重连
+                        }));
+                    };
+                    // 初始化并播放 RTSP 流
+                    PlayRtspStream(txtRtspPath.Text);
 
                     // 设置截图路径
                     snapshotPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snapshot.jpg");
 
                     // 启动定时器进行连接验证
                     _isPlaying = false;
-                    _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
-                    _connectionCheckTimer.Elapsed += CheckConnection;
-                    _connectionCheckTimer.Start();
 
                     // 更新按钮状态
                     UpdateButtonText(btnRtspConnect, "连接中...");
@@ -518,6 +520,52 @@ namespace YOLODetectionApp
             }
         }
 
+        private void Reconnect()
+        {
+            if (!_isPlaying)
+                return; // 如果已手动断开，不执行重连
+
+            Task.Delay(2000).ContinueWith(t =>
+            {
+                BeginInvoke(new Action(() =>
+                {
+                    // 尝试重新播放 RTSP 流
+                    PlayRtspStream(txtRtspPath.Text);
+                }));
+            });
+        }
+        private void PlayRtspStream(string rtspUrl)
+        {
+            try
+            {
+                if (_mediaPlayer != null)
+                {
+                    // 创建并加载 RTSP 流媒体
+                    var media = new Media(_libVLC, rtspUrl, FromType.FromLocation);
+
+                    // 禁用音频
+                    _mediaPlayer.Mute = true; // 静音，防止音频播放
+
+                    // 绑定 MediaPlayer 到 VideoView 控件以显示视频
+                    videoView1.MediaPlayer = _mediaPlayer;
+
+                    // 开始播放
+                    _mediaPlayer.Play(media);
+
+                    AppendTextToTextbox("连接中...");
+
+                    _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
+                    _connectionCheckTimer.Elapsed += CheckConnection;
+                    _connectionCheckTimer.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendTextToTextbox($"连接时发生错误：{ex.Message}");
+            }
+        }
+
+
         // 检查连接状态的定时器回调
         private void CheckConnection(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -529,6 +577,8 @@ namespace YOLODetectionApp
                     UpdateButtonText(btnRtspConnect, "断开连接");
                     _isPlaying = true;
                     _connectionCheckTimer.Stop(); // 停止检查
+                    AppendTextToTextbox("连接完成");
+
                 }
             }
         }
@@ -620,8 +670,14 @@ namespace YOLODetectionApp
                 {
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        // 尝试截图并进行检测
-                        bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+                        bool success = false; // 定义 success 变量
+
+                        if (_mediaPlayer != null)
+                        { 
+                            // 尝试截图并进行检测
+                            success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+                        }
+                        
                         if (success)
                         {
                             if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
