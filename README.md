@@ -19,4 +19,5 @@
 update: 增加了配置,权重,类别文件的自动加载, 增加了置信度,nms抑制的参数设置, 增加了标准文字大小的设置, 增加了日志框显示, 增加了文件夹批量检查<br><br>
 update: 增加了RTSP的检查选项<br><br>
 update: OpenCvSharp会断流, 各种不正常, 改用LibVLCSharp实现视频流的连接<br><br>
+update: 增加训练前置的python脚本,一次执行做好左右准备工作<br><br>
 ![image](https://github.com/Amaury-GitHub/VisionInspection/blob/master/IMG/img1.png)<br>
