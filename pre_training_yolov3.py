@@ -14,6 +14,7 @@ batch = 64
 subdivisions = 8
 width = 608
 height = 608
+angle = 1
 
 # 只保留 train 和 trainval 数据集
 sets = ['train', 'trainval']  
@@ -265,6 +266,9 @@ for i, line in enumerate(lines):
     elif 'height=' in line:
         lines[i] = f'height={height}\n'  # 更新 height 行
         print(f"第 {i + 1} 行的 height 已更新为 {height}")
+    elif 'angle=' in line:
+        lines[i] = f'angle={angle}\n'  # 更新 angle 行
+        print(f"第 {i + 1} 行的 angle 已更新为 {angle}")
     elif 'max_batches =' in line:
         lines[i] = f'max_batches = {max_batches}\n'  # 更新 max_batches 行
         print(f"第 {i + 1} 行的 max_batches 已更新为 {max_batches}")
