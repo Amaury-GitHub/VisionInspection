@@ -469,8 +469,6 @@ namespace YOLODetectionApp
                     // 启动定时器进行连接验证
                     _isPlaying = false;
 
-                    // 更新按钮状态
-                    UpdateButtonText(btnRtspConnect, "连接中...");
                     txtRtspPath.Enabled = false;
                     _isConnected = true;
                 }
@@ -552,11 +550,17 @@ namespace YOLODetectionApp
                     // 开始播放
                     _mediaPlayer.Play(media);
 
+                    UpdateButtonText(btnRtspConnect, "连接中...");
                     AppendTextToTextbox("连接中...");
 
-                    _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
-                    _connectionCheckTimer.Elapsed += CheckConnection;
+                    // 只在第一次创建定时器时进行创建
+                    if (_connectionCheckTimer == null)
+                    {
+                        _connectionCheckTimer = new System.Timers.Timer(1000); // 每秒检查一次
+                        _connectionCheckTimer.Elapsed += CheckConnection;
+                    }
                     _connectionCheckTimer.Start();
+
                 }
             }
             catch (Exception ex)
@@ -574,9 +578,9 @@ namespace YOLODetectionApp
                 bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
                 if (success)
                 {
-                    UpdateButtonText(btnRtspConnect, "断开连接");
                     _isPlaying = true;
                     _connectionCheckTimer.Stop(); // 停止检查
+                    UpdateButtonText(btnRtspConnect, "断开连接");
                     AppendTextToTextbox("连接完成");
                 }
             }
@@ -670,7 +674,7 @@ namespace YOLODetectionApp
                     while (!cancellationToken.IsCancellationRequested)
                     {
 
-                        if (_mediaPlayer != null)
+                        if (_mediaPlayer != null && btnRtspConnect.Text == "断开连接")
                         { 
                             // 尝试截图并进行检测
                             bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
