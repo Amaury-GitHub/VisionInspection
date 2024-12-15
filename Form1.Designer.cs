@@ -28,16 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.btnSelectImage = new System.Windows.Forms.Button();
             this.btnDetect = new System.Windows.Forms.Button();
             this.numericUpDownConfidence = new System.Windows.Forms.NumericUpDown();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.label1 = new System.Windows.Forms.Label();
-            this.BtnLoadConfig = new System.Windows.Forms.Button();
-            this.BtnLoadWeights = new System.Windows.Forms.Button();
-            this.BtnLoadClassNames = new System.Windows.Forms.Button();
+            this.btnLoadConfig = new System.Windows.Forms.Button();
+            this.btnLoadWeights = new System.Windows.Forms.Button();
+            this.btnLoadClassNames = new System.Windows.Forms.Button();
             this.txtConfigPath = new System.Windows.Forms.TextBox();
             this.txtWeightsPath = new System.Windows.Forms.TextBox();
             this.txtClassNamesPath = new System.Windows.Forms.TextBox();
@@ -46,15 +44,15 @@
             this.txtDetectionResults = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.numericUpDownNMS = new System.Windows.Forms.NumericUpDown();
-            this.BtnSelectFolder = new System.Windows.Forms.Button();
-            this.BtnBatchDetect = new System.Windows.Forms.Button();
+            this.btnSelectFolder = new System.Windows.Forms.Button();
+            this.btnBatchDetect = new System.Windows.Forms.Button();
             this.txtFolderPath = new System.Windows.Forms.TextBox();
             this.txtImagePath = new System.Windows.Forms.TextBox();
-            this.btnRtspDetect = new System.Windows.Forms.Button();
-            this.btnRtspLiveDetect = new System.Windows.Forms.Button();
-            this.txtRtspPath = new System.Windows.Forms.TextBox();
+            this.btnStreamDetect = new System.Windows.Forms.Button();
+            this.btnStreamLiveDetect = new System.Windows.Forms.Button();
+            this.txtStreamPath = new System.Windows.Forms.TextBox();
             this.videoView1 = new LibVLCSharp.WinForms.VideoView();
-            this.btnRtspConnect = new System.Windows.Forms.Button();
+            this.btnStreamConnect = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.numericUpDownDelayTime = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
@@ -89,7 +87,7 @@
             this.btnDetect.Name = "btnDetect";
             this.btnDetect.Size = new System.Drawing.Size(150, 50);
             this.btnDetect.TabIndex = 3;
-            this.btnDetect.Text = "开始检测";
+            this.btnDetect.Text = "单次检测";
             this.btnDetect.UseVisualStyleBackColor = true;
             this.btnDetect.Click += new System.EventHandler(this.BtnDetect_Click);
             // 
@@ -101,12 +99,6 @@
             this.numericUpDownConfidence.TabIndex = 4;
             this.numericUpDownConfidence.Tag = "";
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -116,35 +108,35 @@
             this.label1.TabIndex = 5;
             this.label1.Text = "置信度";
             // 
-            // BtnLoadConfig
+            // btnLoadConfig
             // 
-            this.BtnLoadConfig.Location = new System.Drawing.Point(12, 11);
-            this.BtnLoadConfig.Name = "BtnLoadConfig";
-            this.BtnLoadConfig.Size = new System.Drawing.Size(150, 50);
-            this.BtnLoadConfig.TabIndex = 6;
-            this.BtnLoadConfig.Text = "选择配置文件";
-            this.BtnLoadConfig.UseVisualStyleBackColor = true;
-            this.BtnLoadConfig.Click += new System.EventHandler(this.BtnLoadConfig_Click);
+            this.btnLoadConfig.Location = new System.Drawing.Point(12, 11);
+            this.btnLoadConfig.Name = "btnLoadConfig";
+            this.btnLoadConfig.Size = new System.Drawing.Size(150, 50);
+            this.btnLoadConfig.TabIndex = 6;
+            this.btnLoadConfig.Text = "选择配置文件";
+            this.btnLoadConfig.UseVisualStyleBackColor = true;
+            this.btnLoadConfig.Click += new System.EventHandler(this.BtnLoadConfig_Click);
             // 
-            // BtnLoadWeights
+            // btnLoadWeights
             // 
-            this.BtnLoadWeights.Location = new System.Drawing.Point(12, 69);
-            this.BtnLoadWeights.Name = "BtnLoadWeights";
-            this.BtnLoadWeights.Size = new System.Drawing.Size(150, 50);
-            this.BtnLoadWeights.TabIndex = 7;
-            this.BtnLoadWeights.Text = "选择权重文件";
-            this.BtnLoadWeights.UseVisualStyleBackColor = true;
-            this.BtnLoadWeights.Click += new System.EventHandler(this.BtnLoadWeights_Click);
+            this.btnLoadWeights.Location = new System.Drawing.Point(12, 69);
+            this.btnLoadWeights.Name = "btnLoadWeights";
+            this.btnLoadWeights.Size = new System.Drawing.Size(150, 50);
+            this.btnLoadWeights.TabIndex = 7;
+            this.btnLoadWeights.Text = "选择权重文件";
+            this.btnLoadWeights.UseVisualStyleBackColor = true;
+            this.btnLoadWeights.Click += new System.EventHandler(this.BtnLoadWeights_Click);
             // 
-            // BtnLoadClassNames
+            // btnLoadClassNames
             // 
-            this.BtnLoadClassNames.Location = new System.Drawing.Point(12, 127);
-            this.BtnLoadClassNames.Name = "BtnLoadClassNames";
-            this.BtnLoadClassNames.Size = new System.Drawing.Size(150, 50);
-            this.BtnLoadClassNames.TabIndex = 8;
-            this.BtnLoadClassNames.Text = "选择类别文件";
-            this.BtnLoadClassNames.UseVisualStyleBackColor = true;
-            this.BtnLoadClassNames.Click += new System.EventHandler(this.BtnLoadClassNames_Click);
+            this.btnLoadClassNames.Location = new System.Drawing.Point(12, 127);
+            this.btnLoadClassNames.Name = "btnLoadClassNames";
+            this.btnLoadClassNames.Size = new System.Drawing.Size(150, 50);
+            this.btnLoadClassNames.TabIndex = 8;
+            this.btnLoadClassNames.Text = "选择类别文件";
+            this.btnLoadClassNames.UseVisualStyleBackColor = true;
+            this.btnLoadClassNames.Click += new System.EventHandler(this.BtnLoadClassNames_Click);
             // 
             // txtConfigPath
             // 
@@ -210,25 +202,25 @@
             this.numericUpDownNMS.TabIndex = 15;
             this.numericUpDownNMS.Tag = "";
             // 
-            // BtnSelectFolder
+            // btnSelectFolder
             // 
-            this.BtnSelectFolder.Location = new System.Drawing.Point(12, 185);
-            this.BtnSelectFolder.Name = "BtnSelectFolder";
-            this.BtnSelectFolder.Size = new System.Drawing.Size(150, 50);
-            this.BtnSelectFolder.TabIndex = 17;
-            this.BtnSelectFolder.Text = "选择文件夹";
-            this.BtnSelectFolder.UseVisualStyleBackColor = true;
-            this.BtnSelectFolder.Click += new System.EventHandler(this.BtnSelectFolder_Click);
+            this.btnSelectFolder.Location = new System.Drawing.Point(12, 185);
+            this.btnSelectFolder.Name = "btnSelectFolder";
+            this.btnSelectFolder.Size = new System.Drawing.Size(150, 50);
+            this.btnSelectFolder.TabIndex = 17;
+            this.btnSelectFolder.Text = "选择文件夹";
+            this.btnSelectFolder.UseVisualStyleBackColor = true;
+            this.btnSelectFolder.Click += new System.EventHandler(this.BtnSelectFolder_Click);
             // 
-            // BtnBatchDetect
+            // btnBatchDetect
             // 
-            this.BtnBatchDetect.Location = new System.Drawing.Point(601, 185);
-            this.BtnBatchDetect.Name = "BtnBatchDetect";
-            this.BtnBatchDetect.Size = new System.Drawing.Size(150, 50);
-            this.BtnBatchDetect.TabIndex = 18;
-            this.BtnBatchDetect.Text = "批量检测";
-            this.BtnBatchDetect.UseVisualStyleBackColor = true;
-            this.BtnBatchDetect.Click += new System.EventHandler(this.BtnBatchDetect_Click);
+            this.btnBatchDetect.Location = new System.Drawing.Point(601, 185);
+            this.btnBatchDetect.Name = "btnBatchDetect";
+            this.btnBatchDetect.Size = new System.Drawing.Size(150, 50);
+            this.btnBatchDetect.TabIndex = 18;
+            this.btnBatchDetect.Text = "批量检测";
+            this.btnBatchDetect.UseVisualStyleBackColor = true;
+            this.btnBatchDetect.Click += new System.EventHandler(this.BtnBatchDetect_Click);
             // 
             // txtFolderPath
             // 
@@ -244,33 +236,33 @@
             this.txtImagePath.Size = new System.Drawing.Size(333, 25);
             this.txtImagePath.TabIndex = 20;
             // 
-            // btnRtspDetect
+            // btnStreamDetect
             // 
-            this.btnRtspDetect.Location = new System.Drawing.Point(601, 301);
-            this.btnRtspDetect.Name = "btnRtspDetect";
-            this.btnRtspDetect.Size = new System.Drawing.Size(150, 51);
-            this.btnRtspDetect.TabIndex = 21;
-            this.btnRtspDetect.Text = "RTSP 检测";
-            this.btnRtspDetect.UseVisualStyleBackColor = true;
-            this.btnRtspDetect.Click += new System.EventHandler(this.BtnRtspDetect_Click);
+            this.btnStreamDetect.Location = new System.Drawing.Point(601, 301);
+            this.btnStreamDetect.Name = "btnStreamDetect";
+            this.btnStreamDetect.Size = new System.Drawing.Size(150, 51);
+            this.btnStreamDetect.TabIndex = 21;
+            this.btnStreamDetect.Text = "Stream\r\n单次检测";
+            this.btnStreamDetect.UseVisualStyleBackColor = true;
+            this.btnStreamDetect.Click += new System.EventHandler(this.BtnStreamDetect_Click);
             // 
-            // btnRtspLiveDetect
+            // btnStreamLiveDetect
             // 
-            this.btnRtspLiveDetect.Location = new System.Drawing.Point(601, 360);
-            this.btnRtspLiveDetect.Name = "btnRtspLiveDetect";
-            this.btnRtspLiveDetect.Size = new System.Drawing.Size(150, 51);
-            this.btnRtspLiveDetect.TabIndex = 22;
-            this.btnRtspLiveDetect.Text = "RTSP live";
-            this.btnRtspLiveDetect.UseVisualStyleBackColor = true;
-            this.btnRtspLiveDetect.Click += new System.EventHandler(this.BtnRtspLiveDetect_Click);
+            this.btnStreamLiveDetect.Location = new System.Drawing.Point(601, 360);
+            this.btnStreamLiveDetect.Name = "btnStreamLiveDetect";
+            this.btnStreamLiveDetect.Size = new System.Drawing.Size(150, 51);
+            this.btnStreamLiveDetect.TabIndex = 22;
+            this.btnStreamLiveDetect.Text = "Stream\r\n连续检测";
+            this.btnStreamLiveDetect.UseVisualStyleBackColor = true;
+            this.btnStreamLiveDetect.Click += new System.EventHandler(this.BtnStreamLiveDetect_Click);
             // 
-            // txtRtspPath
+            // txtStreamPath
             // 
-            this.txtRtspPath.Location = new System.Drawing.Point(168, 314);
-            this.txtRtspPath.Name = "txtRtspPath";
-            this.txtRtspPath.Size = new System.Drawing.Size(333, 25);
-            this.txtRtspPath.TabIndex = 23;
-            this.txtRtspPath.Text = "rtsp://admin:1qaz!QAZ@192.168.1.108:554";
+            this.txtStreamPath.Location = new System.Drawing.Point(168, 314);
+            this.txtStreamPath.Name = "txtStreamPath";
+            this.txtStreamPath.Size = new System.Drawing.Size(333, 25);
+            this.txtStreamPath.TabIndex = 23;
+            this.txtStreamPath.Text = "rtsp://admin:1qaz!QAZ@192.168.1.108:554";
             // 
             // videoView1
             // 
@@ -283,15 +275,15 @@
             this.videoView1.Text = "videoView1";
             this.videoView1.Visible = false;
             // 
-            // btnRtspConnect
+            // btnStreamConnect
             // 
-            this.btnRtspConnect.Location = new System.Drawing.Point(12, 301);
-            this.btnRtspConnect.Name = "btnRtspConnect";
-            this.btnRtspConnect.Size = new System.Drawing.Size(150, 50);
-            this.btnRtspConnect.TabIndex = 25;
-            this.btnRtspConnect.Text = "连接 RTSP";
-            this.btnRtspConnect.UseVisualStyleBackColor = true;
-            this.btnRtspConnect.Click += new System.EventHandler(this.BtnRtspConnect_Click);
+            this.btnStreamConnect.Location = new System.Drawing.Point(12, 301);
+            this.btnStreamConnect.Name = "btnStreamConnect";
+            this.btnStreamConnect.Size = new System.Drawing.Size(150, 50);
+            this.btnStreamConnect.TabIndex = 25;
+            this.btnStreamConnect.Text = "连接 Stream";
+            this.btnStreamConnect.UseVisualStyleBackColor = true;
+            this.btnStreamConnect.Click += new System.EventHandler(this.BtnStreamConnect_Click);
             // 
             // label4
             // 
@@ -316,15 +308,15 @@
             this.ClientSize = new System.Drawing.Size(1813, 601);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.numericUpDownDelayTime);
-            this.Controls.Add(this.btnRtspConnect);
+            this.Controls.Add(this.btnStreamConnect);
             this.Controls.Add(this.videoView1);
-            this.Controls.Add(this.txtRtspPath);
-            this.Controls.Add(this.btnRtspLiveDetect);
-            this.Controls.Add(this.btnRtspDetect);
+            this.Controls.Add(this.txtStreamPath);
+            this.Controls.Add(this.btnStreamLiveDetect);
+            this.Controls.Add(this.btnStreamDetect);
             this.Controls.Add(this.txtImagePath);
             this.Controls.Add(this.txtFolderPath);
-            this.Controls.Add(this.BtnBatchDetect);
-            this.Controls.Add(this.BtnSelectFolder);
+            this.Controls.Add(this.btnBatchDetect);
+            this.Controls.Add(this.btnSelectFolder);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.numericUpDownNMS);
             this.Controls.Add(this.txtDetectionResults);
@@ -333,9 +325,9 @@
             this.Controls.Add(this.txtClassNamesPath);
             this.Controls.Add(this.txtWeightsPath);
             this.Controls.Add(this.txtConfigPath);
-            this.Controls.Add(this.BtnLoadClassNames);
-            this.Controls.Add(this.BtnLoadWeights);
-            this.Controls.Add(this.BtnLoadConfig);
+            this.Controls.Add(this.btnLoadClassNames);
+            this.Controls.Add(this.btnLoadWeights);
+            this.Controls.Add(this.btnLoadConfig);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numericUpDownConfidence);
             this.Controls.Add(this.btnDetect);
@@ -359,11 +351,10 @@
         private System.Windows.Forms.Button btnSelectImage;
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.NumericUpDown numericUpDownConfidence;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button BtnLoadConfig;
-        private System.Windows.Forms.Button BtnLoadWeights;
-        private System.Windows.Forms.Button BtnLoadClassNames;
+        private System.Windows.Forms.Button btnLoadConfig;
+        private System.Windows.Forms.Button btnLoadWeights;
+        private System.Windows.Forms.Button btnLoadClassNames;
         private System.Windows.Forms.TextBox txtConfigPath;
         private System.Windows.Forms.TextBox txtWeightsPath;
         private System.Windows.Forms.TextBox txtClassNamesPath;
@@ -372,15 +363,15 @@
         private System.Windows.Forms.TextBox txtDetectionResults;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numericUpDownNMS;
-        private System.Windows.Forms.Button BtnSelectFolder;
-        private System.Windows.Forms.Button BtnBatchDetect;
+        private System.Windows.Forms.Button btnSelectFolder;
+        private System.Windows.Forms.Button btnBatchDetect;
         private System.Windows.Forms.TextBox txtFolderPath;
         private System.Windows.Forms.TextBox txtImagePath;
-        private System.Windows.Forms.Button btnRtspDetect;
-        private System.Windows.Forms.Button btnRtspLiveDetect;
-        private System.Windows.Forms.TextBox txtRtspPath;
+        private System.Windows.Forms.Button btnStreamDetect;
+        private System.Windows.Forms.Button btnStreamLiveDetect;
+        private System.Windows.Forms.TextBox txtStreamPath;
         private LibVLCSharp.WinForms.VideoView videoView1;
-        private System.Windows.Forms.Button btnRtspConnect;
+        private System.Windows.Forms.Button btnStreamConnect;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown numericUpDownDelayTime;
     }

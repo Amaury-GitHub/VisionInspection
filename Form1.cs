@@ -1,4 +1,5 @@
 ﻿using LibVLCSharp.Shared;
+using Ookii.Dialogs.WinForms;
 using OpenCvSharp;
 using OpenCvSharp.Dnn;
 using System;
@@ -9,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Ookii.Dialogs.WinForms;
 
 namespace YOLODetectionApp
 {
@@ -17,13 +17,13 @@ namespace YOLODetectionApp
     {
         // 存储文件路径的变量
         private string modelConfig;
+
         private string modelWeights;
         private string classNamesFile;
         private string FolderPath;
         private string resultFolderPath;
         private string imagePath;
         private string snapshotPath;
-
 
         private string[] classNames;
 
@@ -53,15 +53,13 @@ namespace YOLODetectionApp
         // 定义一个全局的随机数生成器
         private readonly Random rand = new Random();
 
-
         private LibVLC _libVLC;
         private MediaPlayer _mediaPlayer;
         private bool _isConnected = false;
         private bool _isPlaying = false;
         private System.Timers.Timer _connectionCheckTimer;
         private CancellationTokenSource cancellationTokenSource;
-
-
+        private bool _isStreamLive = false;
 
         public MainForm()
         {
@@ -127,6 +125,7 @@ namespace YOLODetectionApp
             txtImagePath.ReadOnly = true;
         }
 
+        // 自动加载程序目录下的 YOLO 模型
         private void TryLoadDefaultFiles()
         {
             string exeDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -153,6 +152,7 @@ namespace YOLODetectionApp
             if (!string.IsNullOrEmpty(modelConfig) && !string.IsNullOrEmpty(modelWeights) && !string.IsNullOrEmpty(classNamesFile))
                 LoadYOLOModel();
         }
+
         // 启动时计算颜色
         private void InitializeColors()
         {
@@ -163,11 +163,13 @@ namespace YOLODetectionApp
                 ColorMap[i] = (color, complementaryColor);
             }
         }
+
         // 随机生成颜色
         private Scalar GenerateRandomColor()
         {
             return new Scalar(rand.Next(200, 255), rand.Next(200, 255), rand.Next(200, 255));
         }
+
         // 计算互补色
         private Scalar CalculateComplementaryColor(Scalar originalColor)
         {
@@ -184,10 +186,7 @@ namespace YOLODetectionApp
             return new Scalar(compR, compG, compB);
         }
 
-
-
-
-        // 加载YOLO模型
+        // 加载 YOLO 模型
         private void LoadYOLOModel()
         {
             // 检查是否需要重新加载模型
@@ -270,43 +269,56 @@ namespace YOLODetectionApp
         // 检测图像中的物体
         private void BtnDetect_Click(object sender, EventArgs e)
         {
-            // 检查配置文件和图像是否有效
-            if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
+            UpdateButtonStatus(btnBatchDetect, "批量检测", false);
+            UpdateButtonStatus(btnDetect, "单次检测中...", false);
+            UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
+            UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
+            try
             {
-                MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                return;
-            }
+                // 检查配置文件和图像是否有效
+                if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
+                {
+                    MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                    return;
+                }
 
-            if (inputImage == null)
+                if (inputImage == null)
+                {
+                    MessageBox.Show("请先选择一张图像！");
+                    return;
+                }
+
+                // 加载模型（如果还未加载）
+                LoadYOLOModel();
+
+                // 使用 OpenCV 读取图像
+                inputImage = Cv2.ImRead(imagePath);
+
+                // 进行物体检测
+                var detectedImage = DetectObjects(inputImage, imagePath);
+
+                // 将推理结果图像保存到 exe 目录下
+                Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+
+                RenewPictureBox(detectedImage, pictureBox);
+            }
+            catch (Exception)
             {
-                MessageBox.Show("请先选择一张图像！");
-                return;
             }
-
-            // 加载模型（如果还未加载）
-            LoadYOLOModel();
-
-            // 使用 OpenCV 读取图像
-            inputImage = Cv2.ImRead(imagePath);
-
-            // 进行物体检测
-            var detectedImage = DetectObjects(inputImage, imagePath);
-
-            // 将推理结果图像保存到 exe 目录下
-            Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
-
-
-            RenewPictureBox(detectedImage, pictureBox);
+            finally
+            {
+                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+                UpdateButtonStatus(btnDetect, "单次检测", true);
+                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
+                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+            }
         }
-
-
 
         // 选择并加载模型配置文件
         private void BtnLoadConfig_Click(object sender, EventArgs e)
         {
             // 选择文件
             modelConfig = SelectPath(false, "配置文件|*.cfg|所有文件|*.*", txtConfigPath);
-
         }
 
         // 选择并加载模型权重文件
@@ -314,7 +326,6 @@ namespace YOLODetectionApp
         {
             // 选择文件
             modelWeights = SelectPath(false, "权重文件|*.weights|所有文件|*.*", txtWeightsPath);
-
         }
 
         // 选择并加载类别文件
@@ -322,73 +333,82 @@ namespace YOLODetectionApp
         {
             // 选择文件
             classNamesFile = SelectPath(false, "类别文件|*.names|所有文件|*.*", txtClassNamesPath);
-
-
         }
 
         // 选择文件夹按钮事件
         private void BtnSelectFolder_Click(object sender, EventArgs e)
         {
             FolderPath = SelectPath(true, null, txtFolderPath);  // 选择文件夹
-
         }
 
         // 批量检测按钮事件
         private async void BtnBatchDetect_Click(object sender, EventArgs e)
         {
-            UpdateButtonText(BtnBatchDetect, "批量检测中");
-
-            // 清空txtDetectionResults内容
-            txtDetectionResults.Clear();
-
-            if (string.IsNullOrEmpty(FolderPath))
+            UpdateButtonStatus(btnBatchDetect, "批量检测中...", false);
+            UpdateButtonStatus(btnDetect, "单次检测", false);
+            UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
+            UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
+            try
             {
-                MessageBox.Show("请选择一个文件夹！");
-                UpdateButtonText(BtnBatchDetect, "批量检测");
-                return;
-            }
+                // 清空txtDetectionResults内容
+                txtDetectionResults.Clear();
 
-            // 获取当前时间作为文件夹名
-            string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            resultFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, timeStamp);
-
-            // 创建一个以当前时间命名的文件夹
-            Directory.CreateDirectory(resultFolderPath);
-
-            // 获取文件夹中的所有图像文件
-            var imageFiles = Directory.GetFiles(FolderPath, "*.jpg")
-                .Concat(Directory.GetFiles(FolderPath, "*.jpeg"))
-                .Concat(Directory.GetFiles(FolderPath, "*.png"))
-                .Concat(Directory.GetFiles(FolderPath, "*.bmp"))
-                .ToArray();
-
-            if (imageFiles.Length == 0)
-            {
-                MessageBox.Show("该文件夹中没有支持的图像文件！");
-                UpdateButtonText(BtnBatchDetect, "批量检测");
-                return;
-            }
-
-            // 开始批量检测
-            foreach (var imagePath in imageFiles)
-            {
-                try
+                if (string.IsNullOrEmpty(FolderPath))
                 {
-                    await ProcessImage(imagePath);  // 处理每张图片
-                    await Task.Delay(delayMs); // 每处理完一张图片后等待，减少CPU占用
+                    MessageBox.Show("请选择一个文件夹！");
+                    return;
                 }
-                catch (Exception)
-                {
-                }
-            }
 
-            // 生成检测结果文本
-            string resultTxtPath = Path.Combine(resultFolderPath, "result.txt");
-            using (StreamWriter writer = new StreamWriter(resultTxtPath))
-            {
-                writer.WriteLine(txtDetectionResults.Text); // 将TextBox中的结果写入文件
+                // 获取当前时间作为文件夹名
+                string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                resultFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, timeStamp);
+
+                // 创建一个以当前时间命名的文件夹
+                Directory.CreateDirectory(resultFolderPath);
+
+                // 获取文件夹中的所有图像文件
+                var imageFiles = Directory.GetFiles(FolderPath, "*.jpg")
+                    .Concat(Directory.GetFiles(FolderPath, "*.jpeg"))
+                    .Concat(Directory.GetFiles(FolderPath, "*.png"))
+                    .Concat(Directory.GetFiles(FolderPath, "*.bmp"))
+                    .ToArray();
+
+                if (imageFiles.Length == 0)
+                {
+                    MessageBox.Show("该文件夹中没有支持的图像文件！");
+                    UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+                    return;
+                }
+
+                // 开始批量检测
+                foreach (var imagePath in imageFiles)
+                {
+                    try
+                    {
+                        await ProcessImage(imagePath);  // 处理每张图片
+                        await Task.Delay(delayMs); // 每处理完一张图片后等待，减少CPU占用
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                // 生成检测结果文本
+                using (StreamWriter writer = new StreamWriter(Path.Combine(resultFolderPath, "result.txt")))
+                {
+                    writer.WriteLine(txtDetectionResults.Text); // 将TextBox中的结果写入文件
+                }
             }
-            UpdateButtonText(BtnBatchDetect, "批量检测");
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+                UpdateButtonStatus(btnDetect, "单次检测", true);
+                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
+                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+            }
         }
 
         // 处理每张图片并保存结果
@@ -409,7 +429,8 @@ namespace YOLODetectionApp
             return Task.CompletedTask;
         }
 
-        private void BtnRtspConnect_Click(object sender, EventArgs e)
+        // Stream 连接
+        private void BtnStreamConnect_Click(object sender, EventArgs e)
         {
             if (!_isConnected)
             {
@@ -427,7 +448,6 @@ namespace YOLODetectionApp
                         {
                             if (_isPlaying)
                                 return;
-                            MessageBox.Show("连接失败，请检查地址是否正确！");
                             AppendTextToTextbox("连接失败");
                             Disconnect();
                         }));
@@ -442,8 +462,8 @@ namespace YOLODetectionApp
                             Reconnect(); // 尝试重连
                         }));
                     };
-                    // 初始化并播放 RTSP 流
-                    PlayRtspStream(txtRtspPath.Text);
+                    // 初始化并播放 Stream
+                    PlayStream(txtStreamPath.Text);
 
                     // 设置截图路径
                     snapshotPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "snapshot.jpg");
@@ -452,8 +472,8 @@ namespace YOLODetectionApp
                     _isPlaying = false;
 
                     // 更新按钮状态
-                    UpdateButtonText(btnRtspConnect, "连接中...");
-                    txtRtspPath.Enabled = false;
+                    UpdateButtonStatus(btnStreamConnect, "连接中...", true);
+                    txtStreamPath.Enabled = false;
                     _isConnected = true;
                 }
                 catch (Exception ex)
@@ -467,6 +487,7 @@ namespace YOLODetectionApp
             }
         }
 
+        // Stream 断开
         private void Disconnect()
         {
             try
@@ -491,8 +512,8 @@ namespace YOLODetectionApp
                 _connectionCheckTimer?.Dispose();
 
                 // 更新按钮状态
-                UpdateButtonText(btnRtspConnect, "连接 RTSP");
-                txtRtspPath.Enabled = true;
+                UpdateButtonStatus(btnStreamConnect, "连接 Stream", true);
+                txtStreamPath.Enabled = true;
                 _isConnected = false;
                 _isPlaying = false;
             }
@@ -502,6 +523,7 @@ namespace YOLODetectionApp
             }
         }
 
+        // Stream 重连
         private void Reconnect()
         {
             if (!_isPlaying)
@@ -511,19 +533,21 @@ namespace YOLODetectionApp
             {
                 BeginInvoke(new Action(() =>
                 {
-                    // 尝试重新播放 RTSP 流
-                    PlayRtspStream(txtRtspPath.Text);
+                    // 尝试重新播放 Stream
+                    PlayStream(txtStreamPath.Text);
                 }));
             });
         }
-        private void PlayRtspStream(string rtspUrl)
+
+        // Stream 播放
+        private void PlayStream(string StreamUrl)
         {
             try
             {
                 if (_mediaPlayer != null)
                 {
-                    // 创建并加载 RTSP 流媒体
-                    var media = new Media(_libVLC, rtspUrl, FromType.FromLocation);
+                    // 创建并加载 Stream
+                    var media = new Media(_libVLC, StreamUrl, FromType.FromLocation);
 
                     // 禁用音频
                     _mediaPlayer.Mute = true; // 静音，防止音频播放
@@ -547,8 +571,7 @@ namespace YOLODetectionApp
             }
         }
 
-
-        // 检查连接状态的定时器回调
+        // 检查 stream 的连接状态
         private void CheckConnection(object sender, System.Timers.ElapsedEventArgs e)
         {
             if (_mediaPlayer != null)
@@ -556,134 +579,169 @@ namespace YOLODetectionApp
                 bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
                 if (success)
                 {
-                    UpdateButtonText(btnRtspConnect, "断开连接");
                     _isPlaying = true;
                     _connectionCheckTimer.Stop(); // 停止检查
                     AppendTextToTextbox("连接完成");
-                }
-            }
-        }
-
-        private void BtnRtspDetect_Click(object sender, EventArgs e)
-        {
-            if (!_isConnected)
-            {
-                MessageBox.Show("请先连接 RTSP！");
-                return;
-            }
-            if (!_isPlaying)
-            {
-                MessageBox.Show("请等待 RTSP 连接完成！");
-                return;
-            }
-            try
-            {
-                // 尝试截图并检查是否成功
-                bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
-
-                if (success)
-                {
-                    // 检查配置文件和图像是否有效
-                    if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
+                    if (_isStreamLive)
                     {
-                        MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                        return;
+                        UpdateButtonStatus(btnStreamConnect, "断开连接", false);
                     }
-
-                    // 加载模型（如果还未加载）
-                    LoadYOLOModel();
-
-                    inputImage = Cv2.ImRead(snapshotPath);
-
-                    // 进行物体检测
-                    var detectedImage = DetectObjects(inputImage, null);
-
-                    // 将推理结果图像保存到 exe 目录下
-                    Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
-
-                    RenewPictureBox(detectedImage, pictureBox);
+                    else
+                    {
+                        UpdateButtonStatus(btnStreamConnect, "断开连接", true);
+                    }
                 }
-
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("检测失败：" + ex.Message);
-            }
-
         }
 
-
-        private async void BtnRtspLiveDetect_Click(object sender, EventArgs e)
+        // stream 的单张检测
+        private void BtnStreamDetect_Click(object sender, EventArgs e)
         {
-            if (!_isConnected)
-            {
-                MessageBox.Show("请先连接 RTSP！");
-                return;
-            }
-            if (!_isPlaying)
-            {
-                MessageBox.Show("请等待 RTSP 连接完成！");
-                return;
-            }
-
-            if (cancellationTokenSource != null)
-            {
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource = null;
-                UpdateButtonText(btnRtspLiveDetect, "RTSP live");
-                return;
-            }
-
-            cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-            UpdateButtonText(btnRtspLiveDetect, "停止检测");
-            btnRtspConnect.Enabled = false;
+            UpdateButtonStatus(btnBatchDetect, "批量检测", false);
+            UpdateButtonStatus(btnDetect, "单次检测", false);
+            UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测中...", false);
+            UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
             try
             {
-                await Task.Run(async () =>
+                if (!_isConnected)
                 {
-                    while (!cancellationToken.IsCancellationRequested)
+                    MessageBox.Show("请先连接 Stream！");
+                    return;
+                }
+                if (!_isPlaying)
+                {
+                    MessageBox.Show("请等待 Stream 连接完成！");
+                    return;
+                }
+                try
+                {
+                    // 尝试截图并检查是否成功
+                    bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+
+                    if (success)
                     {
-                        // 尝试截图并进行检测
-                        bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
-
-                        if (success)
+                        // 检查配置文件和图像是否有效
+                        if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
                         {
-                            if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                            {
-                                MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                                break;
-                            }
-
-                            LoadYOLOModel();
-
-                            inputImage = Cv2.ImRead(snapshotPath);
-
-                            var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
-                            // 将推理结果图像保存到 exe 目录下
-                            Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
-
-                            RenewPictureBox(detectedImage, pictureBox);
-
+                            MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                            return;
                         }
 
-                        await Task.Delay(delayMs);
+                        // 加载模型（如果还未加载）
+                        LoadYOLOModel();
+
+                        inputImage = Cv2.ImRead(snapshotPath);
+
+                        // 进行物体检测
+                        var detectedImage = DetectObjects(inputImage, null);
+
+                        // 将推理结果图像保存到 exe 目录下
+                        Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+
+                        RenewPictureBox(detectedImage, pictureBox);
                     }
-                }, cancellationToken);
+                }
+                catch (Exception)
+                {
+                }
             }
-            catch (OperationCanceledException)
+            catch (Exception)
             {
-                // 检测任务被取消
             }
             finally
             {
-                UpdateButtonText(btnRtspLiveDetect, "RTSP live");
-                btnRtspConnect.Enabled = true;
+                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+                UpdateButtonStatus(btnDetect, "单次检测", true);
+                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
+                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
             }
         }
 
+        // stream 的实时检测
+        private async void BtnStreamLiveDetect_Click(object sender, EventArgs e)
+        {
+            UpdateButtonStatus(btnBatchDetect, "批量检测", false);
+            UpdateButtonStatus(btnDetect, "单次检测", false);
+            UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
+            UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测中...", true);
+            UpdateButtonStatus(btnStreamConnect, null, false);
 
+            try
+            {
+                if (!_isConnected)
+                {
+                    MessageBox.Show("请先连接 Stream！");
+                    return;
+                }
+                if (!_isPlaying)
+                {
+                    MessageBox.Show("请等待 Stream 连接完成！");
+                    return;
+                }
 
+                if (cancellationTokenSource != null)
+                {
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource = null;
+                    _isStreamLive = false;
+
+                    return;
+                }
+
+                cancellationTokenSource = new CancellationTokenSource();
+                var cancellationToken = cancellationTokenSource.Token;
+                _isStreamLive = true;
+
+                try
+                {
+                    await Task.Run(async () =>
+                    {
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            // 尝试截图并进行检测
+                            bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+
+                            if (success)
+                            {
+                                if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
+                                {
+                                    MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                                    break;
+                                }
+
+                                LoadYOLOModel();
+
+                                inputImage = Cv2.ImRead(snapshotPath);
+
+                                var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
+                                // 将推理结果图像保存到 exe 目录下
+                                Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
+
+                                RenewPictureBox(detectedImage, pictureBox);
+                            }
+
+                            await Task.Delay(delayMs);
+                        }
+                    }, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+                UpdateButtonStatus(btnDetect, "单次检测", true);
+                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
+                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+                UpdateButtonStatus(btnStreamConnect, null, true);
+            }
+        }
+
+        // 刷新图片显示
         private void RenewPictureBox(Mat inputImage, PictureBox pictureBox)
         {
             // 获取 PictureBox 的宽度和高度
@@ -696,6 +754,7 @@ namespace YOLODetectionApp
             // 将调整后的图像转换为 Bitmap 并显示在 PictureBox 中
             pictureBox.Image = OpenCvSharp.Extensions.BitmapConverter.ToBitmap(resizedImage);
         }
+
         // 图像缩放方法
         private Mat ResizeImage(Mat image, int maxWidth, int maxHeight)
         {
@@ -716,7 +775,8 @@ namespace YOLODetectionApp
             Cv2.Resize(image, resizedImage, new OpenCvSharp.Size(newWidth, newHeight));
             return resizedImage;
         }
-        // 文件加载通用方法
+
+        // 路径选择
         private string SelectPath(bool isFolder, string filter = null, TextBox txtPath = null)
         {
             string selectedPath = null;
@@ -762,6 +822,8 @@ namespace YOLODetectionApp
 
             return selectedPath;  // 返回选择的路径（可能是文件夹或文件路径）
         }
+
+        // 刷新日志
         private void AppendTextToTextbox(string text)
         {
             if (txtDetectionResults.InvokeRequired)
@@ -776,18 +838,27 @@ namespace YOLODetectionApp
             }
         }
 
-        private void UpdateButtonText(Button button, string text)
+        // 更新按钮状态
+        private void UpdateButtonStatus(Button button, string text, bool isEnable)
         {
             if (button.InvokeRequired)
             {
-                button.Invoke(new Action(() => button.Text = text));
+                if (!string.IsNullOrEmpty(text))
+                {
+                    button.Invoke(new Action(() => button.Text = text));
+                }
+
+                button.Invoke(new Action(() => button.Enabled = isEnable));
             }
             else
             {
-                button.Text = text;
+                if (!string.IsNullOrEmpty(text))
+                {
+                    button.Text = text;
+                }
+                button.Enabled = isEnable;
             }
         }
-
 
         // 检测物体
         private Mat DetectObjects(Mat image, string imagePath)
@@ -860,7 +931,6 @@ namespace YOLODetectionApp
                     string resultText = $"Label: {classNames[classId]}, Confidence: {confidences[idx]:0.00}";
                     AppendTextToTextbox(resultText);
 
-
                     // 获取预先计算的颜色和对比色
                     var (labelColor, textColor) = ColorMap[classId];
 
@@ -882,7 +952,6 @@ namespace YOLODetectionApp
                         // 默认显示在标注框上方
                         labelOrigin = new OpenCvSharp.Point(box.X + 5, box.Y - labelSize.Height - 10);
                         backgroundOrigin = labelOrigin;
-
                     }
 
                     // 确保文字背景不会超出图像边界
@@ -941,7 +1010,6 @@ namespace YOLODetectionApp
                     1
                 );
                 AppendTextToTextbox(noDetectionText);
-
             }
 
             // 获取TextBox的宽度
