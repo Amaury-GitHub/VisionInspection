@@ -19,15 +19,21 @@ namespace YOLODetectionApp
         private string modelConfig;
 
         private string modelWeights;
+
         private string classNamesFile;
+
         private string FolderPath;
+
         private string resultFolderPath;
+
         private string imagePath;
+
         private string snapshotPath;
 
         private string[] classNames;
 
         private Net net;
+
         private Mat inputImage;
 
         private bool modelLoaded = false; // 用于判断模型是否已经加载
@@ -54,18 +60,32 @@ namespace YOLODetectionApp
         private readonly Random rand = new Random();
 
         private LibVLC _libVLC;
+
         private MediaPlayer _mediaPlayer;
+
         private bool _isConnected = false;
+
         private bool _isPlaying = false;
+
         private System.Timers.Timer _connectionCheckTimer;
+
         private CancellationTokenSource cancellationTokenSource;
+
         private bool _isStreamLive = false;
 
+        // 构造函数
         public MainForm()
         {
+            // 初始化组件
             InitializeComponent();
+
+            // 初始化控件
             InitializeControls();
+
+            // 尝试加载默认文件
             TryLoadDefaultFiles();
+
+            // 初始化颜色
             InitializeColors();
         }
 
@@ -106,6 +126,7 @@ namespace YOLODetectionApp
             {
                 fontSize = (double)numericUpDownFontSize.Value;
             };
+
             // 设置循环任务延迟时间控件
             numericUpDownDelayTime.Value = delayMs / 1000.0M; // 将毫秒转换为秒
             numericUpDownDelayTime.Minimum = 0.1M;
@@ -128,6 +149,7 @@ namespace YOLODetectionApp
         // 自动加载程序目录下的 YOLO 模型
         private void TryLoadDefaultFiles()
         {
+            // 获取当前应用程序的目录
             string exeDir = AppDomain.CurrentDomain.BaseDirectory;
 
             // 查找目录中的文件
@@ -153,20 +175,27 @@ namespace YOLODetectionApp
                 LoadYOLOModel();
         }
 
-        // 启动时计算颜色
+        // 启动时计算颜色 初始化颜色
         private void InitializeColors()
         {
+            // 遍历所有类别
             for (int i = 0; i < numClasses; i++)
             {
+                // 生成随机颜色
                 Scalar color = GenerateRandomColor();
+
+                // 计算互补颜色
                 Scalar complementaryColor = CalculateComplementaryColor(color);
+
+                // 将颜色和互补颜色存入ColorMap
                 ColorMap[i] = (color, complementaryColor);
             }
         }
 
-        // 随机生成颜色
+        // 随机生成颜色 生成一个随机颜色
         private Scalar GenerateRandomColor()
         {
+            // 返回一个Scalar对象，包含三个随机数，范围在200到255之间
             return new Scalar(rand.Next(200, 255), rand.Next(200, 255), rand.Next(200, 255));
         }
 
@@ -222,15 +251,17 @@ namespace YOLODetectionApp
             }
         }
 
-        // 检查模型是否已经加载且路径没有变化
+        // 检查模型是否已经加载且路径没有变化 判断模型是否已加载
         private bool IsModelLoaded()
         {
+            // 如果模型已加载，并且模型配置、模型权重和类别名称文件路径与文本框中的路径一致，则返回true
             return modelLoaded && modelConfig == txtConfigPath.Text && modelWeights == txtWeightsPath.Text && classNamesFile == txtClassNamesPath.Text;
         }
 
-        // 加载类别文件
+        // 加载类别文件 加载类别文件
         private bool LoadClassNames()
         {
+            // 如果类别文件为空或者文件不存在，则弹出提示框并返回false
             if (string.IsNullOrEmpty(classNamesFile) || !File.Exists(classNamesFile))
             {
                 MessageBox.Show("类别文件未找到，请检查路径！");
@@ -239,14 +270,17 @@ namespace YOLODetectionApp
 
             try
             {
+                // 读取类别文件中的所有行
                 classNames = File.ReadAllLines(classNamesFile);
             }
             catch (Exception ex)
             {
+                // 如果读取文件时发生错误，则弹出提示框并返回false
                 MessageBox.Show($"读取类别文件时发生错误：{ex.Message}");
                 return false;
             }
 
+            // 返回true表示加载成功
             return true;
         }
 
@@ -266,9 +300,10 @@ namespace YOLODetectionApp
             }
         }
 
-        // 检测图像中的物体
+        // 当点击检测按钮时触发的事件
         private void BtnDetect_Click(object sender, EventArgs e)
         {
+            // 更新按钮状态，将批量检测按钮设为不可用，其他按钮设为可用
             UpdateButtonStatus(btnBatchDetect, "批量检测", false);
             UpdateButtonStatus(btnDetect, "单次检测中...", false);
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
@@ -307,6 +342,7 @@ namespace YOLODetectionApp
             }
             finally
             {
+                // 恢复按钮状态，将所有按钮设为可用
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                 UpdateButtonStatus(btnDetect, "单次检测", true);
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
@@ -335,24 +371,30 @@ namespace YOLODetectionApp
             classNamesFile = SelectPath(false, "类别文件|*.names|所有文件|*.*", txtClassNamesPath);
         }
 
-        // 选择文件夹按钮事件
+        // 选择文件夹按钮事件 点击选择文件夹按钮时触发的事件
         private void BtnSelectFolder_Click(object sender, EventArgs e)
         {
+            // 调用SelectPath方法，选择文件夹，并将返回的文件夹路径赋值给FolderPath变量
             FolderPath = SelectPath(true, null, txtFolderPath);  // 选择文件夹
         }
 
         // 批量检测按钮事件
         private async void BtnBatchDetect_Click(object sender, EventArgs e)
         {
+            // 更新按钮状态，将批量检测按钮设置为不可用，并显示“批量检测中...”的文本
             UpdateButtonStatus(btnBatchDetect, "批量检测中...", false);
+
+            // 更新按钮状态，将单次检测按钮设置为不可用，并显示“单次检测”的文本
             UpdateButtonStatus(btnDetect, "单次检测", false);
+
+            // 更新按钮状态，将Stream单次检测按钮设置为不可用，并显示“Stream\r\n单次检测”的文本
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
+
+            // 更新按钮状态，将Stream连续检测按钮设置为不可用，并显示“Stream\r\n连续检测”的文本
             UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
             try
             {
-                // 清空txtDetectionResults内容
-                txtDetectionResults.Clear();
-
+                // 判断FolderPath是否为空，如果为空，则弹出提示框，并返回
                 if (string.IsNullOrEmpty(FolderPath))
                 {
                     MessageBox.Show("请选择一个文件夹！");
@@ -361,6 +403,8 @@ namespace YOLODetectionApp
 
                 // 获取当前时间作为文件夹名
                 string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+                // 将当前时间命名的文件夹路径赋值给resultFolderPath
                 resultFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, timeStamp);
 
                 // 创建一个以当前时间命名的文件夹
@@ -373,20 +417,29 @@ namespace YOLODetectionApp
                     .Concat(Directory.GetFiles(FolderPath, "*.bmp"))
                     .ToArray();
 
+                // 判断文件夹中是否有图像文件，如果没有，则弹出提示框，并返回
                 if (imageFiles.Length == 0)
                 {
                     MessageBox.Show("该文件夹中没有支持的图像文件！");
+
+                    // 更新按钮状态，将批量检测按钮设置为可用，并显示“批量检测”的文本
                     UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                     return;
                 }
+
+                // 清空txtDetectionResults内容
+                txtDetectionResults.Clear();
 
                 // 开始批量检测
                 foreach (var imagePath in imageFiles)
                 {
                     try
                     {
-                        await ProcessImage(imagePath);  // 处理每张图片
-                        await Task.Delay(delayMs); // 每处理完一张图片后等待，减少CPU占用
+                        // 处理每张图片
+                        await ProcessImage(imagePath);
+
+                        // 每处理完一张图片后等待，减少CPU占用
+                        await Task.Delay(delayMs);
                     }
                     catch (Exception)
                     {
@@ -396,7 +449,8 @@ namespace YOLODetectionApp
                 // 生成检测结果文本
                 using (StreamWriter writer = new StreamWriter(Path.Combine(resultFolderPath, "result.txt")))
                 {
-                    writer.WriteLine(txtDetectionResults.Text); // 将TextBox中的结果写入文件
+                    // 将TextBox中的结果写入文件
+                    writer.WriteLine(txtDetectionResults.Text);
                 }
             }
             catch (Exception)
@@ -404,9 +458,16 @@ namespace YOLODetectionApp
             }
             finally
             {
+                // 更新按钮状态，将批量检测按钮设置为可用，并显示“批量检测”的文本
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+
+                // 更新按钮状态，将单次检测按钮设置为可用，并显示“单次检测”的文本
                 UpdateButtonStatus(btnDetect, "单次检测", true);
+
+                // 更新按钮状态，将Stream单次检测按钮设置为可用，并显示“Stream\r\n单次检测”的文本
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
+
+                // 更新按钮状态，将Stream连续检测按钮设置为可用，并显示“Stream\r\n连续检测”的文本
                 UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
             }
         }
@@ -432,6 +493,7 @@ namespace YOLODetectionApp
         // Stream 连接
         private void BtnStreamConnect_Click(object sender, EventArgs e)
         {
+            // 如果没有连接，则尝试连接
             if (!_isConnected)
             {
                 try
@@ -462,6 +524,7 @@ namespace YOLODetectionApp
                             Reconnect(); // 尝试重连
                         }));
                     };
+
                     // 初始化并播放 Stream
                     PlayStream(txtStreamPath.Text);
 
@@ -483,6 +546,7 @@ namespace YOLODetectionApp
             }
             else
             {
+                // 如果已经连接，则断开连接
                 Disconnect();
             }
         }
@@ -523,14 +587,16 @@ namespace YOLODetectionApp
             }
         }
 
-        // Stream 重连
+        // Stream 重连 尝试重新连接
         private void Reconnect()
         {
             if (!_isPlaying)
                 return; // 如果已手动断开，不执行重连
 
+            // 延迟2秒后执行
             Task.Delay(2000).ContinueWith(t =>
             {
+                // 在UI线程中执行
                 BeginInvoke(new Action(() =>
                 {
                     // 尝试重新播放 Stream
@@ -574,20 +640,33 @@ namespace YOLODetectionApp
         // 检查 stream 的连接状态
         private void CheckConnection(object sender, System.Timers.ElapsedEventArgs e)
         {
+            // 如果媒体播放器不为空
             if (_mediaPlayer != null)
             {
+                // 拍摄快照
                 bool success = _mediaPlayer.TakeSnapshot(0, snapshotPath, 0, 0);
+
+                // 如果拍摄成功
                 if (success)
                 {
+                    // 设置正在播放
                     _isPlaying = true;
-                    _connectionCheckTimer.Stop(); // 停止检查
+
+                    // 停止检查
+                    _connectionCheckTimer.Stop();
+
+                    // 添加文本到文本框
                     AppendTextToTextbox("连接完成");
+
+                    // 如果流是直播
                     if (_isStreamLive)
                     {
+                        // 更新按钮状态
                         UpdateButtonStatus(btnStreamConnect, "断开连接", false);
                     }
                     else
                     {
+                        // 更新按钮状态
                         UpdateButtonStatus(btnStreamConnect, "断开连接", true);
                     }
                 }
@@ -597,17 +676,21 @@ namespace YOLODetectionApp
         // stream 的单张检测
         private void BtnStreamDetect_Click(object sender, EventArgs e)
         {
+            // 更新按钮状态，将批量检测、单次检测、Stream单次检测、Stream连续检测按钮设置为不可用
             UpdateButtonStatus(btnBatchDetect, "批量检测", false);
             UpdateButtonStatus(btnDetect, "单次检测", false);
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测中...", false);
             UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
             try
             {
+                // 检查是否已连接 Stream
                 if (!_isConnected)
                 {
                     MessageBox.Show("请先连接 Stream！");
                     return;
                 }
+
+                // 检查 Stream 是否正在播放
                 if (!_isPlaying)
                 {
                     MessageBox.Show("请等待 Stream 连接完成！");
@@ -650,6 +733,7 @@ namespace YOLODetectionApp
             }
             finally
             {
+                // 恢复按钮状态，将批量检测、单次检测、Stream单次检测、Stream连续检测按钮设置为可用
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                 UpdateButtonStatus(btnDetect, "单次检测", true);
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
@@ -660,6 +744,7 @@ namespace YOLODetectionApp
         // stream 的实时检测
         private async void BtnStreamLiveDetect_Click(object sender, EventArgs e)
         {
+            // 更新按钮状态
             UpdateButtonStatus(btnBatchDetect, "批量检测", false);
             UpdateButtonStatus(btnDetect, "单次检测", false);
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
@@ -668,17 +753,21 @@ namespace YOLODetectionApp
 
             try
             {
+                // 检查是否已连接 Stream
                 if (!_isConnected)
                 {
                     MessageBox.Show("请先连接 Stream！");
                     return;
                 }
+
+                // 检查 Stream 是否已连接完成
                 if (!_isPlaying)
                 {
                     MessageBox.Show("请等待 Stream 连接完成！");
                     return;
                 }
 
+                // 检查是否已取消检测
                 if (cancellationTokenSource != null)
                 {
                     cancellationTokenSource.Cancel();
@@ -688,12 +777,14 @@ namespace YOLODetectionApp
                     return;
                 }
 
+                // 创建新的 CancellationTokenSource
                 cancellationTokenSource = new CancellationTokenSource();
                 var cancellationToken = cancellationTokenSource.Token;
                 _isStreamLive = true;
 
                 try
                 {
+                    // 在新的线程中执行检测
                     await Task.Run(async () =>
                     {
                         while (!cancellationToken.IsCancellationRequested)
@@ -703,23 +794,30 @@ namespace YOLODetectionApp
 
                             if (success)
                             {
+                                // 检查配置文件、权重文件和类别文件是否已加载
                                 if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
                                 {
                                     MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
                                     break;
                                 }
 
+                                // 加载 YOLO 模型
                                 LoadYOLOModel();
 
+                                // 读取截图
                                 inputImage = Cv2.ImRead(snapshotPath);
 
+                                // 进行检测
                                 var detectedImage = await Task.Run(() => DetectObjects(inputImage, null));
+
                                 // 将推理结果图像保存到 exe 目录下
                                 Cv2.ImWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "predictions.jpg"), detectedImage);
 
+                                // 更新显示图像
                                 RenewPictureBox(detectedImage, pictureBox);
                             }
 
+                            // 延迟一段时间
                             await Task.Delay(delayMs);
                         }
                     }, cancellationToken);
@@ -733,6 +831,7 @@ namespace YOLODetectionApp
             }
             finally
             {
+                // 恢复按钮状态
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                 UpdateButtonStatus(btnDetect, "单次检测", true);
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
@@ -776,7 +875,7 @@ namespace YOLODetectionApp
             return resizedImage;
         }
 
-        // 路径选择
+        // 路径选择 选择文件夹或文件路径
         private string SelectPath(bool isFolder, string filter = null, TextBox txtPath = null)
         {
             string selectedPath = null;
@@ -823,9 +922,10 @@ namespace YOLODetectionApp
             return selectedPath;  // 返回选择的路径（可能是文件夹或文件路径）
         }
 
-        // 刷新日志
+        // 刷新日志 向文本框中追加文本
         private void AppendTextToTextbox(string text)
         {
+            // 判断当前线程是否为 UI 线程
             if (txtDetectionResults.InvokeRequired)
             {
                 // 如果当前线程不是 UI 线程，使用 Invoke 进行调用
@@ -838,24 +938,32 @@ namespace YOLODetectionApp
             }
         }
 
-        // 更新按钮状态
+        // 更新按钮状态 更新按钮状态
         private void UpdateButtonStatus(Button button, string text, bool isEnable)
         {
+            // 如果按钮需要调用
             if (button.InvokeRequired)
             {
+                // 如果文本不为空
                 if (!string.IsNullOrEmpty(text))
                 {
+                    // 调用按钮的Invoke方法，更新按钮文本
                     button.Invoke(new Action(() => button.Text = text));
                 }
 
+                // 调用按钮的Invoke方法，更新按钮是否可用
                 button.Invoke(new Action(() => button.Enabled = isEnable));
             }
             else
             {
+                // 如果文本不为空
                 if (!string.IsNullOrEmpty(text))
                 {
+                    // 更新按钮文本
                     button.Text = text;
                 }
+
+                // 更新按钮是否可用
                 button.Enabled = isEnable;
             }
         }
@@ -863,8 +971,10 @@ namespace YOLODetectionApp
         // 检测物体
         private Mat DetectObjects(Mat image, string imagePath)
         {
+            // 将图像路径添加到TextBox中
             AppendTextToTextbox(imagePath);
 
+            // 获取图像的宽度和高度
             int width = image.Width;
             int height = image.Height;
 
