@@ -556,10 +556,6 @@ namespace YOLODetectionApp
         {
             try
             {
-                // 取消实时检测任务
-                cancellationTokenSource?.Cancel();
-                cancellationTokenSource = null;
-
                 // 停止播放并释放资源
                 if (_mediaPlayer != null)
                 {
