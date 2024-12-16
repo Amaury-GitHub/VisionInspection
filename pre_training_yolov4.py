@@ -11,7 +11,7 @@ import shutil
 TRAIN_PERCENT = 0.8                     # train占总数据的比例
 cfg_path = "cfg/yolov4-tiny-3l.cfg"     # 模板文件的路径
 batch = 64
-subdivisions = 1                        # 根据显存大小设置
+subdivisions = 16                       # 根据显存大小设置, 32(8-12 GB GPU-VRAM), 16(16-24 GPU-VRAM), 8(32 GB GPU-VRAM)
 width = 608
 height = 608                            # 32的倍数{320，352…..608}, 最小320*320，最大608*608, 影响precision
 
