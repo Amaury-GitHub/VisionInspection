@@ -55,12 +55,16 @@
             this.btnStreamConnect = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.numericUpDownDelayTime = new System.Windows.Forms.NumericUpDown();
+            this.enableOPENCL = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.numericUpDownImageSize = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownConfidence)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNMS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.videoView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDelayTime)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownImageSize)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox
@@ -73,9 +77,10 @@
             // 
             // btnSelectImage
             // 
+            this.btnSelectImage.Font = new System.Drawing.Font("Consolas", 9F);
             this.btnSelectImage.Location = new System.Drawing.Point(12, 243);
             this.btnSelectImage.Name = "btnSelectImage";
-            this.btnSelectImage.Size = new System.Drawing.Size(150, 50);
+            this.btnSelectImage.Size = new System.Drawing.Size(150, 52);
             this.btnSelectImage.TabIndex = 2;
             this.btnSelectImage.Text = "选择图像";
             this.btnSelectImage.UseVisualStyleBackColor = true;
@@ -83,9 +88,10 @@
             // 
             // btnDetect
             // 
+            this.btnDetect.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDetect.Location = new System.Drawing.Point(601, 243);
             this.btnDetect.Name = "btnDetect";
-            this.btnDetect.Size = new System.Drawing.Size(150, 50);
+            this.btnDetect.Size = new System.Drawing.Size(150, 52);
             this.btnDetect.TabIndex = 3;
             this.btnDetect.Text = "单次检测";
             this.btnDetect.UseVisualStyleBackColor = true;
@@ -93,7 +99,8 @@
             // 
             // numericUpDownConfidence
             // 
-            this.numericUpDownConfidence.Location = new System.Drawing.Point(631, 24);
+            this.numericUpDownConfidence.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericUpDownConfidence.Location = new System.Drawing.Point(631, 25);
             this.numericUpDownConfidence.Name = "numericUpDownConfidence";
             this.numericUpDownConfidence.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownConfidence.TabIndex = 4;
@@ -102,17 +109,19 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(553, 29);
+            this.label1.Font = new System.Drawing.Font("Consolas", 9F);
+            this.label1.Location = new System.Drawing.Point(547, 27);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(52, 15);
+            this.label1.Size = new System.Drawing.Size(56, 18);
             this.label1.TabIndex = 5;
             this.label1.Text = "置信度";
             // 
             // btnLoadConfig
             // 
+            this.btnLoadConfig.Font = new System.Drawing.Font("Consolas", 9F);
             this.btnLoadConfig.Location = new System.Drawing.Point(12, 11);
             this.btnLoadConfig.Name = "btnLoadConfig";
-            this.btnLoadConfig.Size = new System.Drawing.Size(150, 50);
+            this.btnLoadConfig.Size = new System.Drawing.Size(150, 52);
             this.btnLoadConfig.TabIndex = 6;
             this.btnLoadConfig.Text = "选择配置文件";
             this.btnLoadConfig.UseVisualStyleBackColor = true;
@@ -120,9 +129,10 @@
             // 
             // btnLoadWeights
             // 
+            this.btnLoadWeights.Font = new System.Drawing.Font("Consolas", 9F);
             this.btnLoadWeights.Location = new System.Drawing.Point(12, 69);
             this.btnLoadWeights.Name = "btnLoadWeights";
-            this.btnLoadWeights.Size = new System.Drawing.Size(150, 50);
+            this.btnLoadWeights.Size = new System.Drawing.Size(150, 52);
             this.btnLoadWeights.TabIndex = 7;
             this.btnLoadWeights.Text = "选择权重文件";
             this.btnLoadWeights.UseVisualStyleBackColor = true;
@@ -130,9 +140,10 @@
             // 
             // btnLoadClassNames
             // 
+            this.btnLoadClassNames.Font = new System.Drawing.Font("Consolas", 9F);
             this.btnLoadClassNames.Location = new System.Drawing.Point(12, 127);
             this.btnLoadClassNames.Name = "btnLoadClassNames";
-            this.btnLoadClassNames.Size = new System.Drawing.Size(150, 50);
+            this.btnLoadClassNames.Size = new System.Drawing.Size(150, 52);
             this.btnLoadClassNames.TabIndex = 8;
             this.btnLoadClassNames.Text = "选择类别文件";
             this.btnLoadClassNames.UseVisualStyleBackColor = true;
@@ -140,13 +151,15 @@
             // 
             // txtConfigPath
             // 
-            this.txtConfigPath.Location = new System.Drawing.Point(168, 24);
+            this.txtConfigPath.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtConfigPath.Location = new System.Drawing.Point(168, 25);
             this.txtConfigPath.Name = "txtConfigPath";
             this.txtConfigPath.Size = new System.Drawing.Size(333, 25);
             this.txtConfigPath.TabIndex = 9;
             // 
             // txtWeightsPath
             // 
+            this.txtWeightsPath.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtWeightsPath.Location = new System.Drawing.Point(168, 82);
             this.txtWeightsPath.Name = "txtWeightsPath";
             this.txtWeightsPath.Size = new System.Drawing.Size(333, 25);
@@ -154,14 +167,16 @@
             // 
             // txtClassNamesPath
             // 
-            this.txtClassNamesPath.Location = new System.Drawing.Point(168, 140);
+            this.txtClassNamesPath.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtClassNamesPath.Location = new System.Drawing.Point(168, 141);
             this.txtClassNamesPath.Name = "txtClassNamesPath";
             this.txtClassNamesPath.Size = new System.Drawing.Size(333, 25);
             this.txtClassNamesPath.TabIndex = 11;
             // 
             // numericUpDownFontSize
             // 
-            this.numericUpDownFontSize.Location = new System.Drawing.Point(631, 100);
+            this.numericUpDownFontSize.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericUpDownFontSize.Location = new System.Drawing.Point(631, 101);
             this.numericUpDownFontSize.Name = "numericUpDownFontSize";
             this.numericUpDownFontSize.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownFontSize.TabIndex = 12;
@@ -169,14 +184,16 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(538, 105);
+            this.label2.Font = new System.Drawing.Font("Consolas", 9F);
+            this.label2.Location = new System.Drawing.Point(531, 103);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(67, 15);
+            this.label2.Size = new System.Drawing.Size(72, 18);
             this.label2.TabIndex = 13;
             this.label2.Text = "文字大小";
             // 
             // txtDetectionResults
             // 
+            this.txtDetectionResults.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtDetectionResults.Location = new System.Drawing.Point(0, 418);
             this.txtDetectionResults.Multiline = true;
             this.txtDetectionResults.Name = "txtDetectionResults";
@@ -188,15 +205,17 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(574, 67);
+            this.label3.Font = new System.Drawing.Font("Consolas", 9F);
+            this.label3.Location = new System.Drawing.Point(571, 65);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(31, 15);
+            this.label3.Size = new System.Drawing.Size(32, 18);
             this.label3.TabIndex = 16;
             this.label3.Text = "NMS";
             // 
             // numericUpDownNMS
             // 
-            this.numericUpDownNMS.Location = new System.Drawing.Point(631, 62);
+            this.numericUpDownNMS.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericUpDownNMS.Location = new System.Drawing.Point(631, 63);
             this.numericUpDownNMS.Name = "numericUpDownNMS";
             this.numericUpDownNMS.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownNMS.TabIndex = 15;
@@ -204,9 +223,10 @@
             // 
             // btnSelectFolder
             // 
+            this.btnSelectFolder.Font = new System.Drawing.Font("Consolas", 9F);
             this.btnSelectFolder.Location = new System.Drawing.Point(12, 185);
             this.btnSelectFolder.Name = "btnSelectFolder";
-            this.btnSelectFolder.Size = new System.Drawing.Size(150, 50);
+            this.btnSelectFolder.Size = new System.Drawing.Size(150, 52);
             this.btnSelectFolder.TabIndex = 17;
             this.btnSelectFolder.Text = "选择文件夹";
             this.btnSelectFolder.UseVisualStyleBackColor = true;
@@ -214,9 +234,10 @@
             // 
             // btnBatchDetect
             // 
+            this.btnBatchDetect.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBatchDetect.Location = new System.Drawing.Point(601, 185);
             this.btnBatchDetect.Name = "btnBatchDetect";
-            this.btnBatchDetect.Size = new System.Drawing.Size(150, 50);
+            this.btnBatchDetect.Size = new System.Drawing.Size(150, 52);
             this.btnBatchDetect.TabIndex = 18;
             this.btnBatchDetect.Text = "批量检测";
             this.btnBatchDetect.UseVisualStyleBackColor = true;
@@ -224,23 +245,26 @@
             // 
             // txtFolderPath
             // 
-            this.txtFolderPath.Location = new System.Drawing.Point(168, 198);
+            this.txtFolderPath.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtFolderPath.Location = new System.Drawing.Point(168, 199);
             this.txtFolderPath.Name = "txtFolderPath";
             this.txtFolderPath.Size = new System.Drawing.Size(333, 25);
             this.txtFolderPath.TabIndex = 19;
             // 
             // txtImagePath
             // 
-            this.txtImagePath.Location = new System.Drawing.Point(168, 256);
+            this.txtImagePath.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtImagePath.Location = new System.Drawing.Point(168, 257);
             this.txtImagePath.Name = "txtImagePath";
             this.txtImagePath.Size = new System.Drawing.Size(333, 25);
             this.txtImagePath.TabIndex = 20;
             // 
             // btnStreamDetect
             // 
+            this.btnStreamDetect.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnStreamDetect.Location = new System.Drawing.Point(601, 301);
             this.btnStreamDetect.Name = "btnStreamDetect";
-            this.btnStreamDetect.Size = new System.Drawing.Size(150, 51);
+            this.btnStreamDetect.Size = new System.Drawing.Size(150, 52);
             this.btnStreamDetect.TabIndex = 21;
             this.btnStreamDetect.Text = "Stream\r\n单次检测";
             this.btnStreamDetect.UseVisualStyleBackColor = true;
@@ -248,9 +272,10 @@
             // 
             // btnStreamLiveDetect
             // 
-            this.btnStreamLiveDetect.Location = new System.Drawing.Point(601, 360);
+            this.btnStreamLiveDetect.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStreamLiveDetect.Location = new System.Drawing.Point(601, 359);
             this.btnStreamLiveDetect.Name = "btnStreamLiveDetect";
-            this.btnStreamLiveDetect.Size = new System.Drawing.Size(150, 51);
+            this.btnStreamLiveDetect.Size = new System.Drawing.Size(150, 52);
             this.btnStreamLiveDetect.TabIndex = 22;
             this.btnStreamLiveDetect.Text = "Stream\r\n连续检测";
             this.btnStreamLiveDetect.UseVisualStyleBackColor = true;
@@ -258,7 +283,8 @@
             // 
             // txtStreamPath
             // 
-            this.txtStreamPath.Location = new System.Drawing.Point(168, 314);
+            this.txtStreamPath.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtStreamPath.Location = new System.Drawing.Point(168, 315);
             this.txtStreamPath.Name = "txtStreamPath";
             this.txtStreamPath.Size = new System.Drawing.Size(333, 25);
             this.txtStreamPath.TabIndex = 23;
@@ -267,19 +293,21 @@
             // videoView1
             // 
             this.videoView1.BackColor = System.Drawing.Color.Black;
+            this.videoView1.Font = new System.Drawing.Font("Consolas", 9F);
             this.videoView1.Location = new System.Drawing.Point(12, 359);
             this.videoView1.MediaPlayer = null;
             this.videoView1.Name = "videoView1";
-            this.videoView1.Size = new System.Drawing.Size(150, 51);
+            this.videoView1.Size = new System.Drawing.Size(150, 52);
             this.videoView1.TabIndex = 24;
             this.videoView1.Text = "videoView1";
             this.videoView1.Visible = false;
             // 
             // btnStreamConnect
             // 
+            this.btnStreamConnect.Font = new System.Drawing.Font("Consolas", 9F);
             this.btnStreamConnect.Location = new System.Drawing.Point(12, 301);
             this.btnStreamConnect.Name = "btnStreamConnect";
-            this.btnStreamConnect.Size = new System.Drawing.Size(150, 50);
+            this.btnStreamConnect.Size = new System.Drawing.Size(150, 52);
             this.btnStreamConnect.TabIndex = 25;
             this.btnStreamConnect.Text = "连接 Stream";
             this.btnStreamConnect.UseVisualStyleBackColor = true;
@@ -288,24 +316,64 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(538, 143);
+            this.label4.Font = new System.Drawing.Font("Consolas", 9F);
+            this.label4.Location = new System.Drawing.Point(531, 143);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(67, 15);
+            this.label4.Size = new System.Drawing.Size(72, 18);
             this.label4.TabIndex = 27;
             this.label4.Text = "任务间隔";
             // 
             // numericUpDownDelayTime
             // 
-            this.numericUpDownDelayTime.Location = new System.Drawing.Point(631, 138);
+            this.numericUpDownDelayTime.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericUpDownDelayTime.Location = new System.Drawing.Point(630, 141);
             this.numericUpDownDelayTime.Name = "numericUpDownDelayTime";
             this.numericUpDownDelayTime.Size = new System.Drawing.Size(120, 25);
             this.numericUpDownDelayTime.TabIndex = 26;
+            // 
+            // enableOPENCL
+            // 
+            this.enableOPENCL.AutoSize = true;
+            this.enableOPENCL.Font = new System.Drawing.Font("Consolas", 9F);
+            this.enableOPENCL.Location = new System.Drawing.Point(187, 373);
+            this.enableOPENCL.Name = "enableOPENCL";
+            this.enableOPENCL.Size = new System.Drawing.Size(78, 22);
+            this.enableOPENCL.TabIndex = 28;
+            this.enableOPENCL.Text = "OPENCL";
+            this.enableOPENCL.UseVisualStyleBackColor = true;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Consolas", 9F);
+            this.label5.Location = new System.Drawing.Point(302, 375);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(56, 18);
+            this.label5.TabIndex = 29;
+            this.label5.Text = "分辨率";
+            // 
+            // numericUpDownImageSize
+            // 
+            this.numericUpDownImageSize.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericUpDownImageSize.Location = new System.Drawing.Point(381, 373);
+            this.numericUpDownImageSize.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericUpDownImageSize.Name = "numericUpDownImageSize";
+            this.numericUpDownImageSize.Size = new System.Drawing.Size(120, 25);
+            this.numericUpDownImageSize.TabIndex = 30;
+            this.numericUpDownImageSize.Tag = "";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1813, 601);
+            this.Controls.Add(this.numericUpDownImageSize);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.enableOPENCL);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.numericUpDownDelayTime);
             this.Controls.Add(this.btnStreamConnect);
@@ -341,6 +409,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownNMS)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.videoView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownDelayTime)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownImageSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -374,6 +443,9 @@
         private System.Windows.Forms.Button btnStreamConnect;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown numericUpDownDelayTime;
+        private System.Windows.Forms.CheckBox enableOPENCL;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown numericUpDownImageSize;
     }
 }
 

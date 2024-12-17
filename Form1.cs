@@ -38,6 +38,8 @@ namespace YOLODetectionApp
 
         private bool modelLoaded = false; // 用于判断模型是否已经加载
 
+        private bool OPENCL = false; // 判断是否启用OPENCL
+
         // 置信度阈值
         private float confidenceThreshold = 0.8f;
 
@@ -49,6 +51,9 @@ namespace YOLODetectionApp
 
         // 循环任务延迟时间
         private int delayMs = 500;
+
+        // 推理图片分辨率
+        private int imageSize = 608;
 
         // 存储每个类别的颜色和对比色
         private readonly Dictionary<int, (Scalar labelColor, Scalar textColor)> ColorMap = new Dictionary<int, (Scalar, Scalar)>();
@@ -98,6 +103,7 @@ namespace YOLODetectionApp
             numericUpDownConfidence.Maximum = 1;
             numericUpDownConfidence.DecimalPlaces = 2;
             numericUpDownConfidence.Increment = 0.01M;
+            numericUpDownConfidence.ReadOnly = true;
             numericUpDownConfidence.ValueChanged += (sender, e) =>
             {
                 // 更新置信度阈值
@@ -110,6 +116,7 @@ namespace YOLODetectionApp
             numericUpDownNMS.Maximum = 1;
             numericUpDownNMS.DecimalPlaces = 1;
             numericUpDownNMS.Increment = 0.1M;
+            numericUpDownNMS.ReadOnly = true;
             numericUpDownNMS.ValueChanged += (sender, e) =>
             {
                 // 更新NMS阈值
@@ -122,6 +129,7 @@ namespace YOLODetectionApp
             numericUpDownFontSize.Maximum = 9.0M;
             numericUpDownFontSize.DecimalPlaces = 1;
             numericUpDownFontSize.Increment = 0.1M;
+            numericUpDownFontSize.ReadOnly = true;
             numericUpDownFontSize.ValueChanged += (sender, e) =>
             {
                 fontSize = (double)numericUpDownFontSize.Value;
@@ -133,9 +141,22 @@ namespace YOLODetectionApp
             numericUpDownDelayTime.Maximum = 10.0M; // 设置最大值为10秒
             numericUpDownDelayTime.DecimalPlaces = 1;
             numericUpDownDelayTime.Increment = 0.1M;
+            numericUpDownDelayTime.ReadOnly = true;
             numericUpDownDelayTime.ValueChanged += (sender, e) =>
             {
                 delayMs = (int)(numericUpDownDelayTime.Value * 1000); // 将秒转换为毫秒
+            };
+
+            // 设置推理分辨率控件
+            numericUpDownImageSize.Value = (decimal)imageSize;
+            numericUpDownImageSize.Minimum = 416.0M;
+            numericUpDownImageSize.Maximum = 608.0M;
+            numericUpDownImageSize.DecimalPlaces = 0;
+            numericUpDownImageSize.Increment = 32M;
+            numericUpDownImageSize.ReadOnly = true;
+            numericUpDownImageSize.ValueChanged += (sender, e) =>
+            {
+                imageSize = (int)(numericUpDownImageSize.Value);
             };
 
             // 设置路径文本框为只读
@@ -241,7 +262,16 @@ namespace YOLODetectionApp
                 }
 
                 net.SetPreferableBackend(Backend.OPENCV);
-                net.SetPreferableTarget(Target.CPU);
+                if (enableOPENCL.Checked)
+                {
+                    net.SetPreferableTarget(Target.OPENCL);
+                    OPENCL = true;
+                }
+                else
+                {
+                    net.SetPreferableTarget(Target.CPU);
+                    OPENCL = false;
+                }
 
                 modelLoaded = true;
             }
@@ -254,8 +284,8 @@ namespace YOLODetectionApp
         // 检查模型是否已经加载且路径没有变化 判断模型是否已加载
         private bool IsModelLoaded()
         {
-            // 如果模型已加载，并且模型配置、模型权重和类别名称文件路径与文本框中的路径一致，则返回true
-            return modelLoaded && modelConfig == txtConfigPath.Text && modelWeights == txtWeightsPath.Text && classNamesFile == txtClassNamesPath.Text;
+            // 如果模型已加载，并且模型配置、模型权重和类别名称文件路径与文本框中的路径一致，以及是否启用OPENCL, 则返回true
+            return modelLoaded && modelConfig == txtConfigPath.Text && modelWeights == txtWeightsPath.Text && classNamesFile == txtClassNamesPath.Text && OPENCL == enableOPENCL.Checked;
         }
 
         // 加载类别文件 加载类别文件
@@ -317,7 +347,7 @@ namespace YOLODetectionApp
                     return;
                 }
 
-                if (inputImage == null)
+                if (string.IsNullOrEmpty(imagePath))
                 {
                     MessageBox.Show("请先选择一张图像！");
                     return;
@@ -327,7 +357,7 @@ namespace YOLODetectionApp
                 LoadYOLOModel();
 
                 // 使用 OpenCV 读取图像
-                inputImage = Cv2.ImRead(imagePath);
+                inputImage = Cv2.ImRead(txtImagePath.Text);
 
                 // 进行物体检测
                 var detectedImage = DetectObjects(inputImage, imagePath);
@@ -975,7 +1005,7 @@ namespace YOLODetectionApp
             int height = image.Height;
 
             // 图像预处理
-            var blob = CvDnn.BlobFromImage(image, 1.0 / 255.0, new OpenCvSharp.Size(416, 416), new Scalar(0, 0, 0), true, false);
+            var blob = CvDnn.BlobFromImage(image, 1.0 / 255.0, new OpenCvSharp.Size(imageSize, imageSize), new Scalar(0, 0, 0), true, false);
             net.SetInput(blob);
 
             // 获取输出层
