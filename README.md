@@ -11,7 +11,6 @@
 yolov3, yolov4已测试<br>
 
 测试的配置,权重,类别文件来自<br>
-[https://github.com/pjreddie/darknet](https://github.com/pjreddie/darknet)<br>
 [https://github.com/AlexeyAB/darknet](https://github.com/AlexeyAB/darknet)<br>
 
 
