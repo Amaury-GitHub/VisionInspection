@@ -334,6 +334,8 @@
             // enableOPENCL
             // 
             this.enableOPENCL.AutoSize = true;
+            this.enableOPENCL.Checked = true;
+            this.enableOPENCL.CheckState = System.Windows.Forms.CheckState.Checked;
             this.enableOPENCL.Font = new System.Drawing.Font("Consolas", 9F);
             this.enableOPENCL.Location = new System.Drawing.Point(187, 373);
             this.enableOPENCL.Name = "enableOPENCL";
