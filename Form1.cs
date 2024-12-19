@@ -22,6 +22,12 @@ namespace YOLODetectionApp
 
         private string classNamesFile;
 
+        private string modelConfigLoad;
+
+        private string modelWeightsLoad;
+
+        private string classNamesFileLoad;
+
         private string FolderPath;
 
         private string resultFolderPath;
@@ -245,14 +251,11 @@ namespace YOLODetectionApp
                 return;
             }
 
-            // 加载类别文件
-            if (!LoadClassNames())
-            {
-                return;
-            }
-
             try
             {
+                // 加载类别名称
+                LoadClassNames();
+
                 // 加载网络
                 net = CvDnn.ReadNetFromDarknet(modelConfig, modelWeights);
                 if (net.Empty())
@@ -273,6 +276,9 @@ namespace YOLODetectionApp
                     OPENCL = false;
                 }
 
+                classNamesFileLoad = classNamesFile;
+                modelConfigLoad = modelConfig;
+                modelWeightsLoad = modelWeights;
                 modelLoaded = true;
             }
             catch (Exception ex)
@@ -285,17 +291,16 @@ namespace YOLODetectionApp
         private bool IsModelLoaded()
         {
             // 如果模型已加载，并且模型配置、模型权重和类别名称文件路径与文本框中的路径一致，以及是否启用OPENCL, 则返回true
-            return modelLoaded && modelConfig == txtConfigPath.Text && modelWeights == txtWeightsPath.Text && classNamesFile == txtClassNamesPath.Text && OPENCL == enableOPENCL.Checked;
+            return modelLoaded && modelConfigLoad == modelConfig && modelWeightsLoad == modelWeights && classNamesFileLoad == classNamesFile && OPENCL == enableOPENCL.Checked;
         }
 
         // 加载类别文件 加载类别文件
-        private bool LoadClassNames()
+        private void LoadClassNames()
         {
             // 如果类别文件为空或者文件不存在，则弹出提示框并返回false
             if (string.IsNullOrEmpty(classNamesFile) || !File.Exists(classNamesFile))
             {
                 MessageBox.Show("类别文件未找到，请检查路径！");
-                return false;
             }
 
             try
@@ -307,11 +312,7 @@ namespace YOLODetectionApp
             {
                 // 如果读取文件时发生错误，则弹出提示框并返回false
                 MessageBox.Show($"读取类别文件时发生错误：{ex.Message}");
-                return false;
             }
-
-            // 返回true表示加载成功
-            return true;
         }
 
         // 选择图像并显示
