@@ -8,7 +8,7 @@ import glob
 import shutil
 
 # 配置参数
-TRAIN_PERCENT = 0.8                     # train占总数据的比例
+train_percent = 0.8                     # train占总数据的比例
 cfg_path = "cfg/yolov4-tiny.cfg"        # 模板文件的路径
 batch = 64
 subdivisions = 16                       # 根据显存大小设置, 32(8-12 GB GPU-VRAM), 16(16-24 GPU-VRAM), 8(32 GB GPU-VRAM)
@@ -41,7 +41,7 @@ total_xml = [f[:-4] for f in os.listdir(ANNOTATIONS_DIR) if f.endswith(".xml")]
 num = len(total_xml)  # 总数据量
 
 # 计算划分数量
-train_count = int(num * TRAIN_PERCENT)  # 根据设置的比例分配给train
+train_count = int(num * train_percent)  # 根据设置的比例分配给train
 
 # 随机选择数据
 random.seed(42)  # 保证结果可重复
