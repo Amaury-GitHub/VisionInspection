@@ -196,10 +196,6 @@ namespace YOLODetectionApp
             txtConfigPath.Text = modelConfig;
             txtWeightsPath.Text = modelWeights;
             txtClassNamesPath.Text = classNamesFile;
-
-            // 加载模型
-            if (!string.IsNullOrEmpty(modelConfig) && !string.IsNullOrEmpty(modelWeights) && !string.IsNullOrEmpty(classNamesFile))
-                LoadYOLOModel();
         }
 
         // 启动时计算颜色 初始化颜色
@@ -245,6 +241,13 @@ namespace YOLODetectionApp
         // 加载 YOLO 模型
         private void LoadYOLOModel()
         {
+            // 检查配置文件和图像是否有效
+            if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
+            {
+                MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
+                return;
+            }
+
             // 检查是否需要重新加载模型
             if (IsModelLoaded())
             {
@@ -341,13 +344,6 @@ namespace YOLODetectionApp
             UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
             try
             {
-                // 检查配置文件和图像是否有效
-                if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                {
-                    MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                    return;
-                }
-
                 if (string.IsNullOrEmpty(imagePath))
                 {
                     MessageBox.Show("请先选择一张图像！");
@@ -460,6 +456,9 @@ namespace YOLODetectionApp
 
                 // 清空txtDetectionResults内容
                 txtDetectionResults.Clear();
+
+                // 加载模型（如果还未加载）
+                LoadYOLOModel();
 
                 // 开始批量检测
                 foreach (var imagePath in imageFiles)
@@ -730,13 +729,6 @@ namespace YOLODetectionApp
 
                     if (success)
                     {
-                        // 检查配置文件和图像是否有效
-                        if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                        {
-                            MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                            return;
-                        }
-
                         // 加载模型（如果还未加载）
                         LoadYOLOModel();
 
@@ -821,13 +813,6 @@ namespace YOLODetectionApp
 
                             if (success)
                             {
-                                // 检查配置文件、权重文件和类别文件是否已加载
-                                if (string.IsNullOrEmpty(modelConfig) || string.IsNullOrEmpty(modelWeights) || string.IsNullOrEmpty(classNamesFile))
-                                {
-                                    MessageBox.Show("配置文件、权重文件或类别文件尚未加载，请先选择文件！");
-                                    break;
-                                }
-
                                 // 加载 YOLO 模型
                                 LoadYOLOModel();
 
