@@ -5,7 +5,9 @@ using OpenCvSharp.Dnn;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,9 +44,11 @@ namespace YOLODetectionApp
 
         private Mat inputImage;
 
-        private bool modelLoaded = false; // 用于判断模型是否已经加载
+        // 用于判断模型是否已经加载
+        private bool modelLoaded = false;
 
-        private bool OPENCL = false; // 判断是否启用OPENCL
+        // 判断是否启用OPENCL
+        private bool OPENCL = false;
 
         // 置信度阈值
         private float confidenceThreshold = 0.8f;
@@ -98,6 +102,9 @@ namespace YOLODetectionApp
 
             // 初始化颜色
             InitializeColors();
+
+            // 释放嵌入的 ZIP 文件
+            ExtractEmbeddedZip();
         }
 
         // 初始化控件设置
@@ -236,6 +243,29 @@ namespace YOLODetectionApp
             byte compB = (byte)(255 - b);
 
             return new Scalar(compR, compG, compB);
+        }
+
+        private void ExtractEmbeddedZip()
+        {
+            // 检查libvlc是否已存在
+            if (Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libvlc")))
+            {
+                return;
+            }
+            try
+            {
+                {
+                    // 使用 ZipArchive 解压
+                    using (ZipArchive archive = new ZipArchive(Assembly.GetExecutingAssembly().GetManifestResourceStream("VisionInspection.libvlc.zip")))
+                    {
+                        archive.ExtractToDirectory(AppDomain.CurrentDomain.BaseDirectory);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"释放资源时发生错误: {ex.Message}");
+            }
         }
 
         // 加载 YOLO 模型
