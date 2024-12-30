@@ -287,6 +287,7 @@ namespace YOLODetectionApp
             catch (Exception ex)
             {
                 MessageBox.Show($"加载YOLO模型时发生错误：{ex.Message}");
+                return;
             }
         }
 
@@ -337,11 +338,19 @@ namespace YOLODetectionApp
         // 当点击检测按钮时触发的事件
         private void BtnDetect_Click(object sender, EventArgs e)
         {
-            // 更新按钮状态，将批量检测按钮设为不可用，其他按钮设为可用
+            // 加载 YOLO 模型
+            LoadYOLOModel();
+            if (!modelLoaded)
+            {
+                return;
+            }
+
+            // 更新按钮状态
             UpdateButtonStatus(btnBatchDetect, "批量检测", false);
             UpdateButtonStatus(btnDetect, "单次检测中...", false);
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
             UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
+
             try
             {
                 if (string.IsNullOrEmpty(imagePath))
@@ -349,9 +358,6 @@ namespace YOLODetectionApp
                     MessageBox.Show("请先选择一张图像！");
                     return;
                 }
-
-                // 加载模型（如果还未加载）
-                LoadYOLOModel();
 
                 // 使用 OpenCV 读取图像
                 inputImage = Cv2.ImRead(txtImagePath.Text);
@@ -369,7 +375,7 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 恢复按钮状态，将所有按钮设为可用
+                // 更新按钮状态
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                 UpdateButtonStatus(btnDetect, "单次检测", true);
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
@@ -408,17 +414,19 @@ namespace YOLODetectionApp
         // 批量检测按钮事件
         private async void BtnBatchDetect_Click(object sender, EventArgs e)
         {
-            // 更新按钮状态，将批量检测按钮设置为不可用，并显示“批量检测中...”的文本
+            // 加载 YOLO 模型
+            LoadYOLOModel();
+            if (!modelLoaded)
+            {
+                return;
+            }
+
+            // 更新按钮状态
             UpdateButtonStatus(btnBatchDetect, "批量检测中...", false);
-
-            // 更新按钮状态，将单次检测按钮设置为不可用，并显示“单次检测”的文本
             UpdateButtonStatus(btnDetect, "单次检测", false);
-
-            // 更新按钮状态，将Stream单次检测按钮设置为不可用，并显示“Stream\r\n单次检测”的文本
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", false);
-
-            // 更新按钮状态，将Stream连续检测按钮设置为不可用，并显示“Stream\r\n连续检测”的文本
             UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
+
             try
             {
                 // 判断FolderPath是否为空，如果为空，则弹出提示框，并返回
@@ -449,16 +457,11 @@ namespace YOLODetectionApp
                 {
                     MessageBox.Show("该文件夹中没有支持的图像文件！");
 
-                    // 更新按钮状态，将批量检测按钮设置为可用，并显示“批量检测”的文本
-                    UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                     return;
                 }
 
                 // 清空txtDetectionResults内容
                 txtDetectionResults.Clear();
-
-                // 加载模型（如果还未加载）
-                LoadYOLOModel();
 
                 // 开始批量检测
                 foreach (var imagePath in imageFiles)
@@ -488,16 +491,13 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 更新按钮状态，将批量检测按钮设置为可用，并显示“批量检测”的文本
+                // 更新按钮状态
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
 
-                // 更新按钮状态，将单次检测按钮设置为可用，并显示“单次检测”的文本
                 UpdateButtonStatus(btnDetect, "单次检测", true);
 
-                // 更新按钮状态，将Stream单次检测按钮设置为可用，并显示“Stream\r\n单次检测”的文本
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
 
-                // 更新按钮状态，将Stream连续检测按钮设置为可用，并显示“Stream\r\n连续检测”的文本
                 UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
             }
         }
@@ -702,11 +702,19 @@ namespace YOLODetectionApp
         // stream 的单张检测
         private void BtnStreamDetect_Click(object sender, EventArgs e)
         {
-            // 更新按钮状态，将批量检测、单次检测、Stream单次检测、Stream连续检测按钮设置为不可用
+            // 加载 YOLO 模型
+            LoadYOLOModel();
+            if (!modelLoaded)
+            {
+                return;
+            }
+
+            // 更新按钮状态
             UpdateButtonStatus(btnBatchDetect, "批量检测", false);
             UpdateButtonStatus(btnDetect, "单次检测", false);
             UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测中...", false);
             UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", false);
+
             try
             {
                 // 检查是否已连接 Stream
@@ -729,9 +737,6 @@ namespace YOLODetectionApp
 
                     if (success)
                     {
-                        // 加载模型（如果还未加载）
-                        LoadYOLOModel();
-
                         inputImage = Cv2.ImRead(snapshotPath);
 
                         // 进行物体检测
@@ -752,7 +757,7 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 恢复按钮状态，将批量检测、单次检测、Stream单次检测、Stream连续检测按钮设置为可用
+                // 更新按钮状态
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                 UpdateButtonStatus(btnDetect, "单次检测", true);
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
@@ -763,6 +768,13 @@ namespace YOLODetectionApp
         // stream 的实时检测
         private async void BtnStreamLiveDetect_Click(object sender, EventArgs e)
         {
+            // 加载 YOLO 模型
+            LoadYOLOModel();
+            if (!modelLoaded)
+            {
+                return;
+            }
+
             // 更新按钮状态
             UpdateButtonStatus(btnBatchDetect, "批量检测", false);
             UpdateButtonStatus(btnDetect, "单次检测", false);
@@ -813,9 +825,6 @@ namespace YOLODetectionApp
 
                             if (success)
                             {
-                                // 加载 YOLO 模型
-                                LoadYOLOModel();
-
                                 // 读取截图
                                 inputImage = Cv2.ImRead(snapshotPath);
 
@@ -843,7 +852,7 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 恢复按钮状态
+                // 更新按钮状态
                 UpdateButtonStatus(btnBatchDetect, "批量检测", true);
                 UpdateButtonStatus(btnDetect, "单次检测", true);
                 UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
