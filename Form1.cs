@@ -463,6 +463,9 @@ namespace YOLODetectionApp
                 // 清空txtDetectionResults内容
                 txtDetectionResults.Clear();
 
+                // 加载模型（如果还未加载）
+                LoadYOLOModel();
+                
                 // 开始批量检测
                 foreach (var imagePath in imageFiles)
                 {
