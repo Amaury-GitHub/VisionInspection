@@ -375,11 +375,8 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 更新按钮状态
-                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
-                UpdateButtonStatus(btnDetect, "单次检测", true);
-                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
-                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+                // 恢复按钮状态
+                RestoreAllButtons();
             }
         }
 
@@ -465,7 +462,7 @@ namespace YOLODetectionApp
 
                 // 加载模型（如果还未加载）
                 LoadYOLOModel();
-                
+
                 // 开始批量检测
                 foreach (var imagePath in imageFiles)
                 {
@@ -494,14 +491,8 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 更新按钮状态
-                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
-
-                UpdateButtonStatus(btnDetect, "单次检测", true);
-
-                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
-
-                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+                // 恢复按钮状态
+                RestoreAllButtons();
             }
         }
 
@@ -760,11 +751,8 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 更新按钮状态
-                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
-                UpdateButtonStatus(btnDetect, "单次检测", true);
-                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
-                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+                // 恢复按钮状态
+                RestoreAllButtons();
             }
         }
 
@@ -855,11 +843,8 @@ namespace YOLODetectionApp
             }
             finally
             {
-                // 更新按钮状态
-                UpdateButtonStatus(btnBatchDetect, "批量检测", true);
-                UpdateButtonStatus(btnDetect, "单次检测", true);
-                UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
-                UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
+                // 恢复按钮状态
+                RestoreAllButtons();
                 UpdateButtonStatus(btnStreamConnect, null, true);
             }
         }
@@ -990,6 +975,14 @@ namespace YOLODetectionApp
                 // 更新按钮是否可用
                 button.Enabled = isEnable;
             }
+        }
+
+        private void RestoreAllButtons()
+        {
+            UpdateButtonStatus(btnBatchDetect, "批量检测", true);
+            UpdateButtonStatus(btnDetect, "单次检测", true);
+            UpdateButtonStatus(btnStreamDetect, "Stream\r\n单次检测", true);
+            UpdateButtonStatus(btnStreamLiveDetect, "Stream\r\n连续检测", true);
         }
 
         // 检测物体
