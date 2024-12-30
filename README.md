@@ -19,5 +19,6 @@ update: 增加了RTSP的检查选项<br><br>
 update: OpenCvSharp会断流, 各种不正常, 改用LibVLCSharp实现视频流的连接<br><br>
 update: 增加训练前置的python脚本, 一次做好所有准备工作: 转换xml到txt, 读取xml自动生成names文件, 生成data文件, 生成图片列表, 基于模板生成训练与测试用的cfg文件<br><br>
 update: 增加是否使用OPENCL调用显卡推理, 增加选择推理分辨率<br><br>
+update: 集成libvlc到exe,启用自释放<br><br>
 
 ![image](https://github.com/Amaury-GitHub/VisionInspection/blob/master/IMG/img1.png)<br>
